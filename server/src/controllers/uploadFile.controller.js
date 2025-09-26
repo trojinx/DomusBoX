@@ -1,7 +1,3 @@
-import path from "path";
-import { fileURLToPath } from "url";
-import multer from "multer";
-
 async function uploadFileToServer(req, res) {
   try {
     console.log("req.file:", req.file);
