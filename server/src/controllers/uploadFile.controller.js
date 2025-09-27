@@ -15,3 +15,10 @@ async function uploadFileToServer(req, res) {
 }
 
 export default uploadFileToServer;
+
+// file upload --> done
+// file download --> done
+// electron app to automatically save the file --> remaining
+// signup, signin --> remaining
+// main thing: maintain keep alive connection with electron client
+// send notifications as soon as there is a file upload for him
