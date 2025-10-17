@@ -14,9 +14,9 @@ async function keepAliveConnection(req, res) {
     // const deviceName = req.query.deviceName;
     eventBus.on("fileUpload", (newFilePath) => {
       console.log(`wow, event watched and received`);
-      res.write(`data: new file ready to receive: ${newFilePath}\n\n`);
+      const fileName = newFilePath.split("/")[1];
+      res.write(`data: new file ready to receive: ${fileName}\n\n`);
     });
-    // now the device is connected, think of how and what to send an event if there is a file for him
   } catch (e) {
     console.log(`error in clientConnection.controller.js: ${e}`);
     return res.status(500).send("Internal server errror");
