@@ -1,6 +1,3 @@
-import watcher from "../config/chokidar.config.js";
-import { fileURLToPath } from "url";
-import path from "path";
 import eventBus from "../config/eventBus.config.js";
 
 async function keepAliveConnection(req, res) {
@@ -10,8 +7,6 @@ async function keepAliveConnection(req, res) {
     res.setHeader("Cache-Control", "no-cache");
     res.flushHeaders();
     res.write("data: Connected to server, ready to receive notifications\n\n");
-
-    // const deviceName = req.query.deviceName;
     eventBus.on("fileUpload", (newFilePath) => {
       console.log(`wow, event watched and received`);
       const fileName = newFilePath.split("/")[1];
