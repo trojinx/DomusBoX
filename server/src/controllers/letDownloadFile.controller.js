@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 
 async function letDownloadFile(req, res) {
   const fileName = req.query.fileName;
+  const username = req.user.username;
   const currentPath = fileURLToPath(import.meta.url);
   const currentDirectory = path.dirname(currentPath);
 
@@ -13,7 +14,12 @@ async function letDownloadFile(req, res) {
     "uploads",
     `${fileName}`
   );
+  const fileFor = fileName.split("_")[0];
 
-  return res.download(fileUploadPath);
+  if (fileFor == username) {
+    return res.download(fileUploadPath);
+  } else {
+    res.status(400).send("you are not authorized to download this file");
+  }
 }
 export default letDownloadFile;
