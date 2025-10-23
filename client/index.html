@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Username's PC</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Comic Sans MS", cursive, sans-serif;
+        background-color: #1e1e1e;
+        color: white;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 900px;
+        margin: 50px auto;
+        border: 2px solid #555;
+        border-radius: 10px;
+        padding: 20px;
+        position: relative;
+        background-color: #222;
+      }
+
+      h1 {
+        color: orange;
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .sidebar {
+        position: absolute;
+        left: 20px;
+        top: 70px;
+        bottom: 20px;
+        width: 150px;
+        border: 1px solid #555;
+        border-radius: 10px;
+        padding: 10px;
+      }
+
+      .sidebar span {
+        display: block;
+        margin-top: 10px;
+      }
+
+      .profile {
+        position: absolute;
+        right: 20px;
+        top: 70px;
+        text-align: center;
+      }
+
+      .profile-circle {
+        width: 60px;
+        height: 60px;
+        border: 2px solid #555;
+        border-radius: 50%;
+        margin-bottom: 10px;
+      }
+
+      .username-input {
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #555;
+        background-color: #333;
+        color: white;
+      }
+
+      .send-button {
+        display: block;
+        margin: 150px auto 0 auto;
+        padding: 10px 20px;
+        background-color: #2e5984;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .progress-container {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        height: 30px;
+        border: 1px solid #555;
+        border-radius: 10px;
+        background-color: #111;
+        display: flex;
+        align-items: center;
+        padding: 2px 10px;
+        box-sizing: border-box;
+      }
+
+      .progress-bar {
+        background-color: #1a5a1a;
+        height: 100%;
+        border-radius: 8px;
+        width: 80%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 10px;
+        box-sizing: border-box;
+      }
+
+      .progress-bar span {
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Username's PC</h1>
+      <div class="sidebar">
+        <span>File history</span>
+      </div>
+
+      <div class="profile">
+        <div class="profile-circle"></div>
+        <input type="text" class="username-input" placeholder="Username:" />
+      </div>
+
+      <button class="send-button">Send files</button>
+
+      <div class="progress-container">
+        <div class="progress-bar">
+          <span>Receiving file: username_filename</span>
+          <span>80%</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
