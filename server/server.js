@@ -31,3 +31,7 @@ app.get("/notifications", keepAliveConnection);
 app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`server started on port: ${process.env.PORT}`);
 });
+
+// PORT=3500
+// MONGO_URI="mongodb+srv://shaaradjarandikar_db_user:eNm2iuFazAIQmMOy@domuxbox.evby794.mongodb.net/?retryWrites=true&w=majority&appName=domuxbox"
+// JWT_SECRET="SDHFSUFHDJHFVGfsdkfskfdjsk123123DUVHDU"
