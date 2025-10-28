@@ -18,6 +18,7 @@ async function signIn(req, res) {
           {
             username: existingUser.username,
             email: email,
+            id: existingUser._id,
           },
           process.env.JWT_SECRET
         );
