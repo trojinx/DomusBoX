@@ -10,6 +10,9 @@ import connectDB from "./src/config/db.config.js";
 import signUp from "./src/controllers/signup.controller.js";
 import signIn from "./src/controllers/signIn.controller.js";
 import verifyJWT from "./src/middleware/verifyJWT.middleware.js";
+import recordFileDownload from "./src/controllers/recordFileDownload.controller.js";
+import showFileHistory from "./src/controllers/fileHistory.controller.js";
+// import verifyUserCredentials from "./src/config/userValidation.config.js";
 const upload = multer({ storage });
 
 dotenv.config();
@@ -19,8 +22,10 @@ app.get("/testing", (req, res) => {
   res.status(200).send("testing success");
 });
 
+app.post("/record", verifyJWT, recordFileDownload);
 app.post("/signUp", signUp);
 app.post("/signIn", signIn);
+app.get("/fileHistory", verifyJWT, showFileHistory);
 
 app.post("/fileUpload", upload.single("file"), uploadFileToServer);
 
@@ -31,7 +36,3 @@ app.get("/notifications", keepAliveConnection);
 app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`server started on port: ${process.env.PORT}`);
 });
-
-// PORT=3500
-// MONGO_URI="mongodb+srv://shaaradjarandikar_db_user:eNm2iuFazAIQmMOy@domuxbox.evby794.mongodb.net/?retryWrites=true&w=majority&appName=domuxbox"
-// JWT_SECRET="SDHFSUFHDJHFVGfsdkfskfdjsk123123DUVHDU"
