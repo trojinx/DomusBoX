@@ -20,8 +20,8 @@ async function signUp(req, res) {
         email: email,
         hashedPassword: hashedPassword,
       });
-      const bearerToken = await jwt.sign(
-        { username: username, email: email },
+      const bearerToken = jwt.sign(
+        { username: username, email: email, id: newUser._id },
         process.env.JWT_SECRET
       );
       await newUser.save();
