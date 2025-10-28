@@ -12,7 +12,6 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const receiverUsername = req.body.username || "anonymous";
     const newFileName = `${receiverUsername}_${file.originalname}`;
-
     cb(null, newFileName);
   },
 });
