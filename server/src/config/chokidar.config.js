@@ -8,14 +8,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const uploadDir = path.join(__dirname, "../../uploads");
-console.log(`watching:${uploadDir}`);
 
 const watcher = chokidar.watch(`${uploadDir}`, { persistent: true });
 
 watcher.on("add", (newFilePath) => {
-  console.log("huihuihui");
+  console.log(newFilePath);
 
   const fileNameOnly = newFilePath.split("uploads")[1];
+  console.log(fileNameOnly);
+
   eventBus.emit("fileUpload", fileNameOnly);
 });
 
