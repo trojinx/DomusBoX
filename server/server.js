@@ -2,7 +2,7 @@ import app from "./src/config/express.config.js";
 import dotenv from "dotenv";
 import multer from "multer";
 import letDownloadFile from "./src/controllers/letDownloadFile.controller.js";
-
+import watcher from "./src/config/chokidar.config.js"; // not importing this causes chokidar watcher to not exec, so keep it imported
 import uploadFileToServer from "./src/controllers/uploadFile.controller.js";
 import storage from "./src/config/multer.config.js";
 import keepAliveConnection from "./src/controllers/clientConnection.controller.js";
