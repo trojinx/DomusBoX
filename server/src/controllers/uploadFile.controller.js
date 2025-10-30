@@ -15,7 +15,16 @@ async function verifyUserCredentials(req, res) {
   try {
     const { username, password } = req.body;
     const existingUser = await User.findOne({ username: username });
+    const currentPath = fileURLToPath(import.meta.url);
+    const fileName = `${username}_${req.file.originalname}`;
+    const fileRemovalPath = path.join(
+      `${currentPath}`,
+      "../../..",
+      "/uploads",
+      `${fileName}`
+    );
     if (!existingUser) {
+      fs.rm(fileRemovalPath);
       return res.status(404).send("User with this username does not exist!");
     } else if (existingUser) {
       const passwordIsCorrect = await bcrypt.compare(
@@ -24,15 +33,6 @@ async function verifyUserCredentials(req, res) {
       );
 
       if (!passwordIsCorrect) {
-        const currentPath = fileURLToPath(import.meta.url);
-        const fileName = `${username}_${req.file.originalname}`;
-        const fileRemovalPath = path.join(
-          `${currentPath}`,
-          "../../..",
-          "/uploads",
-          `${fileName}`
-        );
-        // console.log(fileRemovalPath);
         fs.rm(fileRemovalPath);
 
         return res
