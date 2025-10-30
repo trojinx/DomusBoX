@@ -12,7 +12,7 @@ import signIn from "./src/controllers/signIn.controller.js";
 import verifyJWT from "./src/middleware/verifyJWT.middleware.js";
 import recordFileDownload from "./src/controllers/recordFileDownload.controller.js";
 import showFileHistory from "./src/controllers/fileHistory.controller.js";
-// import verifyUserCredentials from "./src/config/userValidation.config.js";
+import showProfileInfo from "./src/controllers/myProfile.controller.js";
 const upload = multer({ storage });
 
 dotenv.config();
@@ -26,7 +26,7 @@ app.post("/record", verifyJWT, recordFileDownload);
 app.post("/signUp", signUp);
 app.post("/signIn", signIn);
 app.get("/fileHistory", verifyJWT, showFileHistory);
-
+app.get("/showInfo", verifyJWT, showProfileInfo);
 app.post("/fileUpload", upload.single("file"), uploadFileToServer);
 
 app.get("/download", verifyJWT, letDownloadFile);

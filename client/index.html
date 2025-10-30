@@ -1,136 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Username's PC</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DomusBox Dashboard</title>
     <style>
-      body {
-        margin: 0;
-        font-family: "Comic Sans MS", cursive, sans-serif;
-        background-color: #1e1e1e;
-        color: white;
-      }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      .container {
-        width: 90%;
-        max-width: 900px;
-        margin: 50px auto;
-        border: 2px solid #555;
-        border-radius: 10px;
-        padding: 20px;
-        position: relative;
-        background-color: #222;
-      }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-      h1 {
-        color: orange;
-        text-align: center;
-        margin-bottom: 40px;
-      }
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
 
-      .sidebar {
-        position: absolute;
-        left: 20px;
-        top: 70px;
-        bottom: 20px;
-        width: 150px;
-        border: 1px solid #555;
-        border-radius: 10px;
-        padding: 10px;
-      }
+        /* Left Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
 
-      .sidebar span {
-        display: block;
-        margin-top: 10px;
-      }
+        /* Right Sidebar (Notifications) */
+        .rightbar {
+            width: 320px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
 
-      .profile {
-        position: absolute;
-        right: 20px;
-        top: 70px;
-        text-align: center;
-      }
+        /* Username Logo Section */
+        .username-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-      .profile-circle {
-        width: 60px;
-        height: 60px;
-        border: 2px solid #555;
-        border-radius: 50%;
-        margin-bottom: 10px;
-      }
+        .username-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 15px;
+            color: white;
+        }
 
-      .username-input {
-        padding: 5px 10px;
-        border-radius: 5px;
-        border: 1px solid #555;
-        background-color: #333;
-        color: white;
-      }
+        .username-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
 
-      .send-button {
-        display: block;
-        margin: 150px auto 0 auto;
-        padding: 10px 20px;
-        background-color: #2e5984;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-      }
+        .username-info p {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
 
-      .progress-container {
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-        height: 30px;
-        border: 1px solid #555;
-        border-radius: 10px;
-        background-color: #111;
-        display: flex;
-        align-items: center;
-        padding: 2px 10px;
-        box-sizing: border-box;
-      }
+        /* File History Section */
+        .file-history-section {
+            flex: 1;
+            overflow-y: auto;
+        }
 
-      .progress-bar {
-        background-color: #1a5a1a;
-        height: 100%;
-        border-radius: 8px;
-        width: 80%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 10px;
-        box-sizing: border-box;
-      }
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+        }
 
-      .progress-bar span {
-        font-size: 0.9em;
-      }
+        .section-title::before {
+            content: '📁';
+            margin-right: 8px;
+        }
+
+        .file-history-list {
+            list-style: none;
+        }
+
+        .file-history-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .file-details {
+            font-size: 0.8rem;
+            color: #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .file-size {
+            color: #888;
+        }
+
+        .file-date {
+            color: #888;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: #27ae60;
+        }
+
+        .status-dot.disconnected {
+            background: #e74c3c;
+        }
+
+        .status-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .server-info {
+            font-size: 0.8rem;
+            color: #888;
+            text-align: center;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-header {
+            margin-bottom: 30px;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.1rem;
+            color: #ccc;
+        }
+
+        /* Notifications */
+        .notifications-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .notifications-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+        }
+
+        .notifications-title::before {
+            content: '🔔';
+            margin-right: 8px;
+        }
+
+        .notifications-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .notification-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #764ba2;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: #aaa;
+            margin-top: 6px;
+        }
+
+        .upload-area {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #ccc;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .dashboard-title {
+                font-size: 2rem;
+            }
+
+            .rightbar {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        /* Scrollbar Styling */
+        .file-history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .file-history-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .file-history-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .file-history-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
     </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Username's PC</h1>
-      <div class="sidebar">
-        <span>File history</span>
-      </div>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <!-- Username Logo Section -->
+            <div class="username-section">
+                <div class="username-avatar" id="usernameAvatar">U</div>
+                <div class="username-info">
+                    <h3 id="usernameDisplay">Loading...</h3>
+                    <p>DomusBox User</p>
+                </div>
+            </div>
 
-      <div class="profile">
-        <div class="profile-circle"></div>
-        <input type="text" class="username-input" placeholder="Username:" />
-      </div>
+            <!-- File History Section -->
+            <div class="file-history-section">
+                <div class="section-title">File History</div>
+                <ul class="file-history-list" id="fileHistoryList">
+                    <!-- File history items will be populated by JavaScript -->
+                </ul>
+            </div>
 
-      <button class="send-button">Send files</button>
-
-      <div class="progress-container">
-        <div class="progress-bar">
-          <span>Receiving file: username_filename</span>
-          <span>80%</span>
+            <!-- Connection Status -->
+            <div class="connection-status">
+                <div class="status-indicator">
+                    <div class="status-dot connected" id="statusDot"></div>
+                    <div class="status-text" id="statusText">Connected</div>
+                </div>
+                <div class="server-info">
+                    Server: localhost:3500
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Dashboard</h1>
+                <p class="dashboard-subtitle">Welcome to your DomusBox control center</p>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Drag & Drop Files Here</div>
+                <div class="upload-subtext">or click to browse files</div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Notifications -->
+        <div class="rightbar">
+            <div class="notifications-section">
+                <div class="notifications-title">Notifications</div>
+                <ul class="notifications-list" id="notificationsList"></ul>
+            </div>
+        </div>
     </div>
-  </body>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:3500';
+        
+        // DOM Elements
+        const usernameAvatar = document.getElementById('usernameAvatar');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const fileHistoryList = document.getElementById('fileHistoryList');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const uploadArea = document.getElementById('uploadArea');
+        const notificationsList = document.getElementById('notificationsList');
+        
+        // Initialize Dashboard
+        function initializeDashboard() {
+            ensureAuthenticated();
+            fetchAndRenderProfile();
+            fetchAndRenderFileHistory();
+            startConnectionStatusListener();
+            setupUploadArea();
+        }
+
+        // Auth utilities
+        function getToken() {
+            return localStorage.getItem('bearerToken');
+        }
+
+        function ensureAuthenticated() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = 'signin.html';
+            }
+        }
+
+        function authHeaders() {
+            const token = getToken();
+            return {
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        // Fetch and render profile info (/showInfo)
+        async function fetchAndRenderProfile() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/showInfo`, {
+                    method: 'GET',
+                    headers: authHeaders()
+                });
+                if (!res.ok) throw new Error('Failed to fetch profile');
+                const data = await res.json();
+                const username = data?.existingUser?.username || 'User';
+                usernameDisplay.textContent = username;
+                usernameAvatar.textContent = username.charAt(0).toUpperCase();
+                // cache username for quick load
+                localStorage.setItem('username', username);
+            } catch (e) {
+                console.error('Profile fetch error:', e);
+                usernameDisplay.textContent = 'Guest';
+                usernameAvatar.textContent = 'G';
+            }
+        }
+
+        // Load file history from server (/fileHistory)
+        async function fetchAndRenderFileHistory() {
+            fileHistoryList.innerHTML = '';
+            try {
+                const res = await fetch(`${API_BASE_URL}/fileHistory`, {
+                    method: 'GET',
+                    headers: authHeaders()
+                });
+                if (res.status === 404) {
+                    // No previous files
+                    const empty = document.createElement('li');
+                    empty.className = 'file-history-item';
+                    empty.innerHTML = '<div class="file-name">No previous files</div>';
+                    fileHistoryList.appendChild(empty);
+                    return;
+                }
+                if (!res.ok) throw new Error('Failed to fetch file history');
+                const data = await res.json();
+                const files = Array.isArray(data?.foundFiles) ? data.foundFiles : [];
+
+                files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                files.forEach(file => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'file-history-item';
+                    const dateText = file.createdAt ? new Date(file.createdAt).toLocaleString() : '';
+                    listItem.innerHTML = `
+                        <div class="file-name">${file.fileName}</div>
+                        <div class="file-details">
+                            <span class="file-size">${file.fileType || ''}</span>
+                            <span class="file-date">${dateText}</span>
+                        </div>
+                    `;
+                    fileHistoryList.appendChild(listItem);
+                });
+            } catch (e) {
+                console.error('File history error:', e);
+                const errorItem = document.createElement('li');
+                errorItem.className = 'file-history-item';
+                errorItem.innerHTML = '<div class="file-name">Failed to load file history</div>';
+                fileHistoryList.appendChild(errorItem);
+            }
+        }
+
+        // Live connection status using Server-Sent Events (/notifications)
+        let sse;
+        function startConnectionStatusListener() {
+            try {
+                if (sse) {
+                    sse.close();
+                }
+                const sseUrl = `${API_BASE_URL.replace(/\/$/, '')}/notifications`;
+                sse = new EventSource(sseUrl);
+                sse.onopen = () => {
+                    setConnectionStatus(true);
+                    appendNotification('SSE connected');
+                };
+                sse.onerror = () => {
+                    setConnectionStatus(false);
+                };
+                const handleSseMessage = (evt) => {
+                    // show exact message and event type (if any)
+                    const label = evt.type && evt.type !== 'message' ? `[${evt.type}] ` : '';
+                    appendNotification(`${label}${evt.data}`);
+                };
+                // default messages
+                sse.onmessage = handleSseMessage;
+                // also listen for potential named events from server
+                sse.addEventListener('fileUpload', handleSseMessage);
+            } catch (e) {
+                console.error('SSE setup failed:', e);
+                setConnectionStatus(false);
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (sse) sse.close();
+        });
+
+        function appendNotification(message) {
+            const li = document.createElement('li');
+            li.className = 'notification-item';
+            const now = new Date();
+            li.innerHTML = `
+                <div>${escapeHtml(message)}</div>
+                <div class="notification-time">${now.toLocaleString()}</div>
+            `;
+            notificationsList.prepend(li);
+        }
+
+        // Basic HTML escape to avoid injecting HTML via SSE
+        function escapeHtml(unsafe) {
+            return String(unsafe)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Set connection status
+        function setConnectionStatus(connected) {
+            if (connected) {
+                statusDot.className = 'status-dot connected';
+                statusText.textContent = 'Connected';
+            } else {
+                statusDot.className = 'status-dot disconnected';
+                statusText.textContent = 'Disconnected';
+            }
+        }
+
+        // Setup upload area
+        function setupUploadArea() {
+            uploadArea.addEventListener('click', () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.multiple = true;
+                input.onchange = handleFileUpload;
+                input.click();
+            });
+
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#667eea';
+                uploadArea.style.background = 'rgba(102, 126, 234, 0.1)';
+            });
+
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
+                
+                const files = Array.from(e.dataTransfer.files);
+                handleFileUpload({ target: { files } });
+            });
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const files = Array.from(event.target.files);
+            if (files.length === 0) return;
+
+            console.log('Files selected for upload:', files);
+            // Here you would implement the actual file upload logic
+            // For now, we'll just show a message
+            alert(`Selected ${files.length} file(s) for upload. Upload functionality will be implemented.`);
+        }
+
+        // No need for polling with SSE
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+    </script>
+</body>
 </html>

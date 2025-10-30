@@ -2,6 +2,7 @@ import eventBus from "../config/eventBus.config.js";
 
 async function keepAliveConnection(req, res) {
   try {
+    // const id = req.user.id;
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Connection", "keep-alive");
     res.setHeader("Cache-Control", "no-cache");
