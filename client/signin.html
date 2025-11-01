@@ -175,6 +175,67 @@
             text-decoration: underline;
         }
 
+        /* Steam-like Signing In Overlay */
+        .signing-in-overlay {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        .signing-in-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .signing-in-content {
+            text-align: center;
+            color: #f1f5f9;
+        }
+
+        .signing-in-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(59, 130, 246, 0.2);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spinSigningIn 1s linear infinite;
+            margin: 0 auto 24px;
+        }
+
+        @keyframes spinSigningIn {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .signing-in-text {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .signing-in-subtext {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
         .alert {
             padding: 15px;
             border-radius: 10px;
@@ -338,7 +399,16 @@
     </style>
 </head>
 <body>
-    <div class="signin-container">
+    <!-- Steam-like Signing In Overlay -->
+    <div id="signingInOverlay" class="signing-in-overlay">
+        <div class="signing-in-content">
+            <div class="signing-in-spinner"></div>
+            <div class="signing-in-text">Signing in...</div>
+            <div class="signing-in-subtext">Please wait while we authenticate you</div>
+        </div>
+    </div>
+
+    <div class="signin-container" id="signinContainer">
         <div class="signin-header">
             <h1>Welcome Back</h1>
             <p>Sign in to your DomusBox account</p>
@@ -378,6 +448,56 @@
         const btnText = document.getElementById('btnText');
         const loading = document.getElementById('loading');
         const alert = document.getElementById('alert');
+        const signingInOverlay = document.getElementById('signingInOverlay');
+        const signinContainer = document.getElementById('signinContainer');
+        
+        // Check for JWT token on page load
+        async function checkExistingSession() {
+            const token = localStorage.getItem('bearerToken');
+            
+            if (!token) {
+                // No token, show login form
+                signingInOverlay.style.display = 'none';
+                signinContainer.style.display = 'block';
+                return;
+            }
+            
+            // Token exists, show signing in overlay
+            signingInOverlay.classList.add('active');
+            signinContainer.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/quickSignIn`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    // Quick sign in successful, redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                } else {
+                    // Token invalid or expired, remove it and show login form
+                    localStorage.removeItem('bearerToken');
+                    localStorage.removeItem('username');
+                    signingInOverlay.classList.remove('active');
+                    signinContainer.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Quick sign in error:', error);
+                // On error, remove token and show login form
+                localStorage.removeItem('bearerToken');
+                localStorage.removeItem('username');
+                signingInOverlay.classList.remove('active');
+                signinContainer.style.display = 'block';
+            }
+        }
+        
+        // Run check on page load
+        document.addEventListener('DOMContentLoaded', checkExistingSession);
 
         // Form validation
         function validateForm() {
@@ -495,7 +615,7 @@
                     } catch (_) {}
 
                     showAlert('Sign in successful! Redirecting to dashboard...', 'success');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
                 } else {
                     const dataText = await response.text();
                     if (dataText.includes('Password is incorrect')) {

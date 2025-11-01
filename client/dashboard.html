@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DomusBox Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --space-unit: 24px;
+            --border-radius-card: 12px;
+            --border-radius-button: 8px;
+            --border-radius-dropzone: 16px;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Left Sidebar */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: #1e293b;
+            border-right: 1px solid #334155;
+            padding: var(--space-unit);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Right Sidebar (Notifications) */
+        .rightbar {
+            width: 320px;
+            background: #1e293b;
+            border-left: 1px solid #334155;
+            padding: var(--space-unit);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Username Logo Section */
+        .username-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--space-unit);
+            padding-bottom: var(--space-unit);
+            border-bottom: 1px solid #334155;
+        }
+
+        .username-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-right: 15px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .username-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #f1f5f9;
+        }
+
+        .username-info p {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        /* File History Section */
+        .file-history-section {
+            flex: 1;
+            min-height: 0; /* Important for flex children to scroll */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .file-history-section .section-title {
+            flex-shrink: 0; /* Keep title fixed at top */
+        }
+
+        .file-history-section .file-history-list {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: rgba(148, 163, 184, 0.3) transparent; /* Firefox: thumb color, track color */
+            -ms-overflow-style: auto; /* IE and Edge */
+        }
+
+        .file-history-section .file-history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .file-history-section .file-history-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .file-history-section .file-history-list::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            transition: background 0.2s ease;
+        }
+
+        .file-history-section .file-history-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.5);
+            background-clip: padding-box;
+        }
+
+        .file-history-section .file-history-list::-webkit-scrollbar-thumb:active {
+            background: rgba(148, 163, 184, 0.7);
+            background-clip: padding-box;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: var(--space-unit);
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '📁';
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .file-history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .file-history-date-group {
+            margin-bottom: var(--space-unit);
+        }
+
+        .file-history-date-header {
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .file-history-item {
+            padding: 16px;
+            margin-bottom: 8px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: var(--border-radius-card);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .file-history-item:hover {
+            background: #334155;
+            border-color: #475569;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #f1f5f9;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-details {
+            font-size: 12px;
+            color: #94a3b8;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .file-date {
+            color: #64748b;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        /* File History Tooltip */
+        .file-history-item .file-name {
+            position: relative;
+        }
+
+        .file-history-item .file-name[data-full-name]:hover::after {
+            content: attr(data-full-name);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #f1f5f9;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10000;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            animation: tooltipFadeIn 0.2s ease forwards;
+        }
+
+        .file-history-item .file-name[data-full-name]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 2px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #334155;
+            z-index: 10001;
+            pointer-events: none;
+        }
+
+        /* Preview Card Tooltip */
+        .preview-card-name {
+            position: relative;
+        }
+
+        .preview-card-name[data-full-name]:hover::after {
+            content: attr(data-full-name);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #f1f5f9;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10000;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            animation: tooltipFadeIn 0.2s ease forwards;
+        }
+
+        .preview-card-name[data-full-name]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 2px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #334155;
+            z-index: 10001;
+            pointer-events: none;
+        }
+
+        @keyframes tooltipFadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Three Dot Menu */
+        .file-menu {
+            position: relative;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .menu-button {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .menu-button:hover {
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        .menu-button.active {
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: var(--border-radius-button);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            min-width: 120px;
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .menu-dropdown.active {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .menu-item {
+            padding: 10px 16px;
+            color: #f1f5f9;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .menu-item:hover {
+            background: #334155;
+        }
+
+        .menu-item:first-child {
+            border-top-left-radius: var(--border-radius-button);
+            border-top-right-radius: var(--border-radius-button);
+        }
+
+        .menu-item:last-child {
+            border-bottom-left-radius: var(--border-radius-button);
+            border-bottom-right-radius: var(--border-radius-button);
+        }
+
+        .menu-item.delete {
+            color: #ef4444;
+        }
+
+        .menu-item.delete:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Preview Card Menu */
+        .preview-card {
+            position: relative;
+        }
+
+        .preview-card-menu {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 10;
+        }
+
+        /* Logout Button */
+        .logout-button {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: var(--space-unit);
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: var(--border-radius-button);
+            color: #f1f5f9;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .logout-button:hover {
+            background: #334155;
+            border-color: #475569;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .logout-button:active {
+            transform: translateY(0);
+        }
+
+        /* Connection Status */
+        .connection-status {
+            margin-top: auto;
+            padding-top: var(--space-unit);
+            border-top: 1px solid #334155;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 16px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: var(--border-radius-card);
+            margin-bottom: 12px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 12px;
+            animation: pulse 2s infinite;
+            flex-shrink: 0;
+        }
+
+        .status-dot.connected {
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+
+        .status-dot.disconnected {
+            background: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+
+        .status-dot.warning {
+            background: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #f1f5f9;
+        }
+
+        .server-info {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            padding-bottom: 120px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-header {
+            margin-bottom: var(--space-unit);
+        }
+
+        .dashboard-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .dashboard-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        /* Notifications */
+        .notifications-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .notifications-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: var(--space-unit);
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+        }
+
+        .notifications-title::before {
+            content: '🔔';
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .notifications-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .notification-item {
+            padding: 16px;
+            margin-bottom: 12px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: var(--border-radius-card);
+            border-left: 3px solid;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        }
+
+        .notification-item.unread {
+            background: #1e293b;
+            border-left-color: #3b82f6;
+        }
+
+        .notification-item.unread::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .notification-item:hover {
+            background: #334155;
+            border-color: #475569;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .notification-text {
+            flex: 1;
+            font-size: 14px;
+            color: #f1f5f9;
+            line-height: 1.5;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+
+        /* File Preview Cards Section */
+        .preview-section {
+            margin-top: var(--space-unit);
+        }
+
+        .preview-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: var(--space-unit);
+            color: #f1f5f9;
+        }
+
+        .preview-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+            margin-top: var(--space-unit);
+        }
+
+        .preview-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: var(--border-radius-card);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-card:hover {
+            background: #334155;
+            border-color: #475569;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-thumbnail {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-thumbnail-icon {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            color: #ffffff;
+        }
+
+        .preview-card-info {
+            padding: 12px;
+        }
+
+        .preview-card-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #f1f5f9;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 4px;
+        }
+
+        .preview-card-date {
+            font-size: 11px;
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Image Modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .image-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #f1f5f9;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(30, 41, 59, 0.8);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 2px solid #334155;
+        }
+
+        .image-modal-close:hover {
+            background: rgba(51, 65, 85, 0.9);
+            transform: rotate(90deg);
+        }
+
+        .image-modal-close:active {
+            transform: rotate(90deg) scale(0.95);
+        }
+
+        /* Downloads Section */
+        #downloadsSection {
+            position: fixed;
+            bottom: 0;
+            left: 280px; /* Start after left sidebar */
+            right: 320px; /* End before right sidebar */
+            padding: 16px 32px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid #334155;
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        #downloadsSection::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        @media (max-width: 768px) {
+            #downloadsSection {
+                left: 0;
+                right: 0;
+            }
+        }
+
+        #downloadsList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #downloadsList li {
+            padding: 12px 16px;
+            margin-top: 8px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: var(--border-radius-card);
+            border-left: 3px solid #10b981;
+            font-size: 14px;
+            color: #f1f5f9;
+            transition: all 0.3s ease;
+        }
+
+        #downloadsList li:hover {
+            background: #334155;
+            border-color: #475569;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #334155;
+            }
+
+            .main-content {
+                padding: var(--space-unit);
+            }
+
+            .dashboard-title {
+                font-size: 24px;
+            }
+
+            .rightbar {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid #334155;
+            }
+        }
+
+        /* Scrollbar Styling - Elegant Postman-style */
+        .notifications-list {
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: rgba(148, 163, 184, 0.3) transparent; /* Firefox: thumb color, track color */
+        }
+
+        .notifications-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .notifications-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .notifications-list::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            transition: background 0.2s ease;
+        }
+
+        .notifications-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.5);
+            background-clip: padding-box;
+        }
+
+        .notifications-list::-webkit-scrollbar-thumb:active {
+            background: rgba(148, 163, 184, 0.7);
+            background-clip: padding-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <!-- Username Logo Section -->
+            <div class="username-section">
+                <div class="username-avatar" id="usernameAvatar">U</div>
+                <div class="username-info">
+                    <h3 id="usernameDisplay">Loading...</h3>
+                    <p>DomusBox User</p>
+                </div>
+            </div>
+
+            <!-- File History Section -->
+            <div class="file-history-section">
+                <div class="section-title">File History</div>
+                <ul class="file-history-list" id="fileHistoryList">
+                    <!-- File history items will be populated by JavaScript -->
+                </ul>
+            </div>
+
+            <!-- Logout Button -->
+            <button class="logout-button" id="logoutButton">
+                <span>Log Out</span>
+            </button>
+
+            <!-- Connection Status -->
+            <div class="connection-status">
+                <div class="status-indicator">
+                    <div class="status-dot connected" id="statusDot"></div>
+                    <div class="status-text" id="statusText">Connected</div>
+                </div>
+                <div class="server-info">
+                    Server: localhost:3500
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Dashboard</h1>
+                <p class="dashboard-subtitle">Welcome to your DomusBox control center</p>
+            </div>
+
+            <!-- File Preview Cards -->
+            <div class="preview-section">
+                <div class="preview-section-title">Recent Files</div>
+                <div class="preview-cards-grid" id="previewCardsGrid">
+                    <!-- Preview cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Downloads status -->
+        <div id="downloadsSection">
+            <ul id="downloadsList"></ul>
+        </div>
+
+        <!-- Image Modal -->
+        <div id="imageModal" class="image-modal">
+            <span class="image-modal-close" id="imageModalClose">&times;</span>
+            <img id="imageModalContent" class="image-modal-content" src="" alt="Preview">
+        </div>
+
+        <!-- Right Sidebar: Notifications -->
+        <div class="rightbar">
+            <div class="notifications-section">
+                <div class="notifications-title">Notifications</div>
+                <ul class="notifications-list" id="notificationsList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:3500';
+        
+        // DOM Elements
+        const usernameAvatar = document.getElementById('usernameAvatar');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const fileHistoryList = document.getElementById('fileHistoryList');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const notificationsList = document.getElementById('notificationsList');
+        const logoutButton = document.getElementById('logoutButton');
+        const imageModal = document.getElementById('imageModal');
+        const imageModalContent = document.getElementById('imageModalContent');
+        const imageModalClose = document.getElementById('imageModalClose');
+        const previewCardsGrid = document.getElementById('previewCardsGrid');
+        
+        // Initialize Dashboard
+        function initializeDashboard() {
+            ensureAuthenticated();
+            fetchAndRenderProfile();
+            fetchAndRenderFileHistory();
+            fetchAndRenderPreviewCards();
+            startConnectionStatusListener();
+            
+            // Setup logout button
+            logoutButton.addEventListener('click', handleLogout);
+            
+            // Setup image modal
+            imageModalClose.addEventListener('click', closeImageModal);
+            imageModal.addEventListener('click', (e) => {
+                if (e.target === imageModal) {
+                    closeImageModal();
+                }
+            });
+            
+            // Close modal on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && imageModal.classList.contains('active')) {
+                    closeImageModal();
+                }
+            });
+        }
+
+        // Auth utilities
+        function getToken() {
+            return localStorage.getItem('bearerToken');
+        }
+
+        function ensureAuthenticated() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = 'signin.html';
+            }
+        }
+
+        function authHeaders() {
+            const token = getToken();
+            return {
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
+        // Fetch and render profile info (/showInfo)
+        async function fetchAndRenderProfile() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/showInfo`, {
+                    method: 'GET',
+                    headers: authHeaders()
+                });
+                if (!res.ok) throw new Error('Failed to fetch profile');
+                const data = await res.json();
+                const username = data?.existingUser?.username || 'User';
+                usernameDisplay.textContent = username;
+                usernameAvatar.textContent = username.charAt(0).toUpperCase();
+                // cache username for quick load
+                localStorage.setItem('username', username);
+            } catch (e) {
+                console.error('Profile fetch error:', e);
+                usernameDisplay.textContent = 'Guest';
+                usernameAvatar.textContent = 'G';
+            }
+        }
+
+        // Get file type text for icon
+        function getFileIcon(fileType) {
+            if (!fileType) return 'FILE';
+            return fileType.toUpperCase();
+        }
+
+        // Check if file is an image
+        function isImageFile(fileType) {
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
+            return imageTypes.includes(fileType?.toLowerCase());
+        }
+
+        // Create preview card element
+        function createPreviewCard(file) {
+            const card = document.createElement('div');
+            card.className = 'preview-card';
+            
+            // Handle both object format and simple parameters
+            const fileType = file.fileType || file.type || '';
+            const fileName = file.fileName || file.name || '';
+            const isImage = isImageFile(fileType);
+            const dateText = file.createdAt 
+                ? new Date(file.createdAt).toLocaleDateString() 
+                : (file.date || new Date().toLocaleDateString());
+            
+            // Thumbnail section
+            const thumbnail = document.createElement('div');
+            thumbnail.className = 'preview-thumbnail';
+            
+            if (isImage) {
+                // For images, try to load from local file first
+                const img = document.createElement('img');
+                img.alt = fileName;
+                
+                // Show loading state
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'preview-thumbnail-icon';
+                loadingDiv.textContent = getFileIcon(fileType);
+                thumbnail.appendChild(loadingDiv);
+                
+                // Try to load from local storage
+                loadImagePreview(fileName, img, loadingDiv, thumbnail);
+            } else {
+                // For non-images, show file type icon
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'preview-thumbnail-icon';
+                iconDiv.textContent = getFileIcon(fileType);
+                thumbnail.appendChild(iconDiv);
+            }
+            
+            // Card info section
+            const cardInfo = document.createElement('div');
+            cardInfo.className = 'preview-card-info';
+            
+            const cardName = document.createElement('div');
+            cardName.className = 'preview-card-name';
+            cardName.textContent = fileName;
+            cardName.setAttribute('data-full-name', fileName);
+            
+            const cardDate = document.createElement('div');
+            cardDate.className = 'preview-card-date';
+            cardDate.textContent = dateText;
+            
+            cardInfo.appendChild(cardName);
+            cardInfo.appendChild(cardDate);
+            
+            // Add three-dot menu (for preview cards, positioned absolutely)
+            const menu = createFileMenu(fileName, true);
+            card.appendChild(menu);
+            
+            card.appendChild(thumbnail);
+            card.appendChild(cardInfo);
+            
+            // Add click handler for all cards (images open in modal, others could open file)
+            card.addEventListener('click', (e) => {
+                // Don't trigger card action if clicking on menu
+                if (e.target.closest('.file-menu') || e.target.closest('.menu-dropdown')) {
+                    return;
+                }
+                if (isImage) {
+                    showImageModal(fileName);
+                } else {
+                    // For non-images, could trigger download or open file
+                    console.log('Clicked on non-image file:', fileName);
+                }
+            });
+            
+            return card;
+        }
+
+        // Load and render preview cards from file history
+        async function fetchAndRenderPreviewCards() {
+            previewCardsGrid.innerHTML = '';
+            try {
+                const res = await fetch(`${API_BASE_URL}/fileHistory`, {
+                    method: 'GET',
+                    headers: authHeaders()
+                });
+                
+                if (res.status === 404 || !res.ok) {
+                    return;
+                }
+                
+                const data = await res.json();
+                const files = Array.isArray(data?.foundFiles) ? data.foundFiles : [];
+                
+                // Sort by date (newest first) and take first 7
+                files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                const recentFiles = files.slice(0, 7);
+                
+                recentFiles.forEach(file => {
+                    const card = createPreviewCard(file);
+                    previewCardsGrid.appendChild(card);
+                });
+            } catch (e) {
+                console.error('Error loading preview cards:', e);
+            }
+        }
+
+        // Add preview card when file is downloaded
+        function addPreviewCard(fileName, fileType) {
+            const file = {
+                fileName: fileName,
+                fileType: fileType,
+                createdAt: new Date().toISOString()
+            };
+            
+            const card = createPreviewCard(file);
+            
+            // Insert at the beginning
+            const firstCard = previewCardsGrid.firstChild;
+            if (firstCard) {
+                previewCardsGrid.insertBefore(card, firstCard);
+            } else {
+                previewCardsGrid.appendChild(card);
+            }
+            
+            // Limit to 7 cards max - remove oldest if exceeding
+            while (previewCardsGrid.children.length > 7) {
+                previewCardsGrid.removeChild(previewCardsGrid.lastChild);
+            }
+        }
+
+        // Group files by date
+        function groupFilesByDate(files) {
+            const groups = {};
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            files.forEach(file => {
+                const fileDate = new Date(file.createdAt);
+                fileDate.setHours(0, 0, 0, 0);
+                
+                let groupKey;
+                const diffTime = today - fileDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 0) {
+                    groupKey = 'Today';
+                } else if (diffDays === 1) {
+                    groupKey = 'Yesterday';
+                } else if (diffDays < 7) {
+                    groupKey = fileDate.toLocaleDateString('en-US', { weekday: 'long' });
+                } else {
+                    groupKey = fileDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                }
+                
+                if (!groups[groupKey]) {
+                    groups[groupKey] = [];
+                }
+                groups[groupKey].push(file);
+            });
+            
+            return groups;
+        }
+
+        // Load file history from server (/fileHistory)
+        async function fetchAndRenderFileHistory() {
+            fileHistoryList.innerHTML = '';
+            try {
+                const res = await fetch(`${API_BASE_URL}/fileHistory`, {
+                    method: 'GET',
+                    headers: authHeaders()
+                });
+                if (res.status === 404) {
+                    // No previous files
+                    const empty = document.createElement('li');
+                    empty.className = 'file-history-item';
+                    empty.innerHTML = '<div class="file-info"><div class="file-name">No previous files</div></div>';
+                    fileHistoryList.appendChild(empty);
+                    return;
+                }
+                if (!res.ok) throw new Error('Failed to fetch file history');
+                const data = await res.json();
+                const files = Array.isArray(data?.foundFiles) ? data.foundFiles : [];
+
+                files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                const groupedFiles = groupFilesByDate(files);
+
+                Object.keys(groupedFiles).forEach(dateGroup => {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'file-history-date-group';
+                    
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'file-history-date-header';
+                    dateHeader.textContent = dateGroup;
+                    groupDiv.appendChild(dateHeader);
+
+                    groupedFiles[dateGroup].forEach(file => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'file-history-item';
+                    const dateText = file.createdAt ? new Date(file.createdAt).toLocaleString() : '';
+                        const fileType = file.fileType || '';
+                        const fileIcon = getFileIcon(fileType);
+                        const fileName = file.fileName;
+                        
+                    listItem.innerHTML = `
+                            <div class="file-icon">${fileIcon}</div>
+                            <div class="file-info">
+                                <div class="file-name" data-full-name="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
+                        <div class="file-details">
+                            <span class="file-date">${dateText}</span>
+                                </div>
+                        </div>
+                    `;
+                    
+                    // Add three-dot menu
+                    const menu = createFileMenu(fileName);
+                    listItem.appendChild(menu);
+                        groupDiv.appendChild(listItem);
+                    });
+                    
+                    fileHistoryList.appendChild(groupDiv);
+                });
+            } catch (e) {
+                console.error('File history error:', e);
+                const errorItem = document.createElement('li');
+                errorItem.className = 'file-history-item';
+                errorItem.innerHTML = '<div class="file-name">Failed to load file history</div>';
+                fileHistoryList.appendChild(errorItem);
+            }
+        }
+
+        // Live connection status using Server-Sent Events (/notifications)
+        let sse; // fallback EventSource
+        let sseAbortController; // fetch-stream controller
+        async function startConnectionStatusListener() {
+            // First try authenticated fetch stream (works with JWT-protected SSE)
+            try {
+                if (sseAbortController) {
+                    sseAbortController.abort();
+                }
+                sseAbortController = new AbortController();
+                const response = await fetch(`${API_BASE_URL}/notifications`, {
+                    method: 'GET',
+                    headers: authHeaders(),
+                    signal: sseAbortController.signal,
+                });
+
+                if (!response.ok || !response.body) {
+                    throw new Error(`SSE fetch failed: ${response.status}`);
+                }
+
+                setConnectionStatus(true);
+                appendNotification('SSE connected');
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+                let buffer = '';
+
+                (async function readStream() {
+                    try {
+                        while (true) {
+                            const { value, done } = await reader.read();
+                            if (done) break;
+                            buffer += decoder.decode(value, { stream: true });
+
+                            // Process complete SSE events separated by double newlines
+                            let idx;
+                            while ((idx = buffer.indexOf('\n\n')) !== -1) {
+                                const rawEvent = buffer.slice(0, idx);
+                                buffer = buffer.slice(idx + 2);
+                                const lines = rawEvent.split('\n').map(l => l.trim());
+                                const dataLines = lines
+                                    .filter(l => l.startsWith('data:'))
+                                    .map(l => l.slice(5).trim());
+                                if (dataLines.length) {
+                                    appendNotification(dataLines.join('\n'));
+                                }
+                            }
+                        }
+                    } catch (streamErr) {
+                        console.error('SSE stream error:', streamErr);
+                        setConnectionStatus(false);
+                        // Fallback to EventSource without auth
+                        startEventSourceFallback();
+                    }
+                })();
+
+                return; // using fetch-stream path
+            } catch (e) {
+                console.warn('Authenticated SSE failed, falling back to EventSource:', e);
+                setConnectionStatus(false);
+                // Fallback to EventSource (may fail if auth required)
+                startEventSourceFallback();
+            }
+        }
+
+        function startEventSourceFallback() {
+            try {
+                if (sse) sse.close();
+                const sseUrl = `${API_BASE_URL.replace(/\/$/, '')}/notifications`;
+                sse = new EventSource(sseUrl);
+                sse.onopen = () => {
+                    setConnectionStatus(true);
+                    appendNotification('SSE connected (fallback)');
+                };
+                sse.onerror = () => {
+                    setConnectionStatus(false);
+                };
+                sse.onmessage = (evt) => {
+                    const label = evt.type && evt.type !== 'message' ? `[${evt.type}] ` : '';
+                    appendNotification(`${label}${evt.data}`);
+                };
+            } catch (e) {
+                console.error('EventSource fallback failed:', e);
+                setConnectionStatus(false);
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (sse) sse.close();
+            if (sseAbortController) sseAbortController.abort();
+        });
+
+        function getNotificationIcon(message) {
+            if (message.toLowerCase().includes('connected')) return '🔗';
+            if (message.toLowerCase().includes('file') || message.toLowerCase().includes('download')) return '📥';
+            if (message.toLowerCase().includes('error') || message.toLowerCase().includes('fail')) return '❌';
+            if (message.toLowerCase().includes('warning')) return '⚠️';
+            return 'ℹ️';
+        }
+
+        function appendNotification(message) {
+            const li = document.createElement('li');
+            li.className = 'notification-item unread';
+            const now = new Date();
+            const icon = getNotificationIcon(message);
+            
+            li.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-icon">${icon}</div>
+                    <div class="notification-text">${escapeHtml(message)}</div>
+                </div>
+                <div class="notification-time">${now.toLocaleString()}</div>
+            `;
+            
+            // Mark as read on click
+            li.addEventListener('click', () => {
+                li.classList.remove('unread');
+            });
+            
+            notificationsList.prepend(li);
+
+            // Attempt auto-download when notification contains a file name
+            attemptAutoDownloadFromMessage(message);
+        }
+
+        // Basic HTML escape to avoid injecting HTML via SSE
+        function escapeHtml(unsafe) {
+            return String(unsafe)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Set connection status
+        function setConnectionStatus(connected) {
+            if (connected) {
+                statusDot.className = 'status-dot connected';
+                statusText.textContent = 'Connected';
+            } else {
+                statusDot.className = 'status-dot disconnected';
+                statusText.textContent = 'Disconnected';
+            }
+        }
+
+        // Load image preview from local storage
+        async function loadImagePreview(fileName, imgElement, loadingDiv, thumbnail) {
+            try {
+                console.log(`Loading preview for: ${fileName}`);
+                // Check Electron file path first
+                const localPath = getLocalFilePath(fileName);
+                
+                if (localPath) {
+                    console.log(`Found local path: ${localPath}`);
+                    if (localPath.startsWith('blob:')) {
+                        // Browser blob URL - prefer IndexedDB as blob URLs are temporary
+                        const blob = await getBlobFromIndexedDB(fileName);
+                        if (blob) {
+                            const blobUrl = URL.createObjectURL(blob);
+                            imgElement.src = blobUrl;
+                        } else {
+                            // Fallback to stored blob URL (might work)
+                            imgElement.src = localPath;
+                        }
+                    } else {
+                        // Electron file path - ensure it has file:// protocol
+                        const fileUrl = localPath.startsWith('file://') 
+                            ? localPath 
+                            : `file://${localPath}`;
+                        imgElement.src = fileUrl;
+                    }
+                } else {
+                    // No local path, try IndexedDB
+                    const blob = await getBlobFromIndexedDB(fileName);
+                    if (blob) {
+                        const blobUrl = URL.createObjectURL(blob);
+                        imgElement.src = blobUrl;
+                    } else {
+                        // No local copy found, show icon
+                        console.warn('No local copy found for:', fileName);
+                        if (!thumbnail.contains(loadingDiv)) {
+                            thumbnail.appendChild(loadingDiv);
+                        }
+                        return;
+                    }
+                }
+                
+                imgElement.onload = () => {
+                    // Remove loading icon and show image
+                    if (thumbnail.contains(loadingDiv)) {
+                        thumbnail.removeChild(loadingDiv);
+                    }
+                    thumbnail.innerHTML = '';
+                    thumbnail.appendChild(imgElement);
+                };
+                
+                imgElement.onerror = (e) => {
+                    console.error('Failed to load image preview:', fileName, e);
+                    // Try IndexedDB as fallback
+                    getBlobFromIndexedDB(fileName).then(blob => {
+                        if (blob) {
+                            const blobUrl = URL.createObjectURL(blob);
+                            imgElement.src = blobUrl;
+                        } else {
+                            // Keep the icon if image fails to load
+                            if (!thumbnail.contains(loadingDiv)) {
+                                thumbnail.appendChild(loadingDiv);
+                            }
+                        }
+                    }).catch(() => {
+                        // Keep the icon if everything fails
+                        if (!thumbnail.contains(loadingDiv)) {
+                            thumbnail.appendChild(loadingDiv);
+                        }
+                    });
+                };
+            } catch (e) {
+                console.error('Error loading image preview:', e);
+                // Keep the icon on error
+                if (!thumbnail.contains(loadingDiv)) {
+                    thumbnail.appendChild(loadingDiv);
+                }
+            }
+        }
+
+        // Show image in modal
+        async function showImageModal(fileName) {
+            try {
+                let imageUrl = null;
+                let isBlobUrlCreated = false;
+                
+                // Check Electron file path first
+                const localPath = getLocalFilePath(fileName);
+                
+                if (localPath) {
+                    if (localPath.startsWith('blob:')) {
+                        // Browser blob URL (might be expired, so try IndexedDB first)
+                        // Prefer IndexedDB as blob URLs are temporary
+                        const blob = await getBlobFromIndexedDB(fileName);
+                        if (blob) {
+                            imageUrl = URL.createObjectURL(blob);
+                            isBlobUrlCreated = true;
+                        } else {
+                            // Fallback to blob URL (might work)
+                            imageUrl = localPath;
+                        }
+                    } else {
+                        // Electron file path - ensure it has file:// protocol
+                        imageUrl = localPath.startsWith('file://') 
+                            ? localPath 
+                            : `file://${localPath}`;
+                    }
+                } else {
+                    // Try IndexedDB
+                    const blob = await getBlobFromIndexedDB(fileName);
+                    if (blob) {
+                        imageUrl = URL.createObjectURL(blob);
+                        isBlobUrlCreated = true;
+                    } else {
+                        console.error('Image not found in local storage:', fileName);
+                        alert(`Image "${fileName}" is not available locally. Please download it first.`);
+                        return;
+                    }
+                }
+                
+                imageModalContent.src = imageUrl;
+                imageModalContent.alt = fileName;
+                imageModal.classList.add('active');
+                
+                // Clean up blob URL when modal closes (only if we created it)
+                if (isBlobUrlCreated) {
+                    imageModal.addEventListener('transitionend', function cleanup() {
+                        if (!imageModal.classList.contains('active')) {
+                            URL.revokeObjectURL(imageUrl);
+                            imageModal.removeEventListener('transitionend', cleanup);
+                        }
+                    }, { once: true });
+                }
+            } catch (e) {
+                console.error('Error loading image:', e);
+                alert(`Failed to load image "${fileName}". ${e.message || 'Please download the file first.'}`);
+            }
+        }
+
+        function closeImageModal() {
+            imageModal.classList.remove('active');
+        }
+
+        // Logout function
+        function handleLogout() {
+            // Remove JWT token from localStorage
+            localStorage.removeItem('bearerToken');
+            localStorage.removeItem('username');
+            
+            // Redirect to login page
+            window.location.href = 'signin.html';
+        }
+
+        // No need for polling with SSE
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
+
+        // Try to detect filename from notification and download it
+        function attemptAutoDownloadFromMessage(message) {
+            if (!message) return;
+            // Expected format from server: "new file ready to receive: <filename>"
+            const match = message.match(/new file ready to receive:\s*(.+)$/i);
+            const candidate = match ? match[1].trim() : null;
+            const filename = candidate || null;
+            if (!filename) return;
+            downloadFileByName(filename);
+        }
+
+        // Add file item to File History DOM
+        function addFileToHistoryDOM(fileName) {
+            // Remove "No previous files" message if it exists
+            const existingItems = Array.from(fileHistoryList.children);
+            existingItems.forEach(item => {
+                const text = item.textContent || '';
+                if (text.includes('No previous files') || text.includes('Failed to load')) {
+                    item.remove();
+                }
+            });
+
+            // Extract file type (extension after last dot)
+            const lastDotIndex = fileName.lastIndexOf('.');
+            const fileType = lastDotIndex !== -1 ? fileName.substring(lastDotIndex + 1) : '';
+            const fileIcon = getFileIcon(fileType);
+
+            // Check if "Today" group exists
+            let todayGroup = null;
+            Array.from(fileHistoryList.children).forEach(group => {
+                if (group.classList.contains('file-history-date-group')) {
+                    const header = group.querySelector('.file-history-date-header');
+                    if (header && header.textContent === 'Today') {
+                        todayGroup = group;
+                    }
+                }
+            });
+
+            // Create or use today's group
+            if (!todayGroup) {
+                todayGroup = document.createElement('div');
+                todayGroup.className = 'file-history-date-group';
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'file-history-date-header';
+                dateHeader.textContent = 'Today';
+                todayGroup.appendChild(dateHeader);
+                fileHistoryList.insertBefore(todayGroup, fileHistoryList.firstChild);
+            }
+
+            // Create new list item
+            const listItem = document.createElement('li');
+            listItem.className = 'file-history-item';
+            const now = new Date();
+            const dateText = now.toLocaleString();
+            listItem.innerHTML = `
+                <div class="file-icon">${fileIcon}</div>
+                <div class="file-info">
+                    <div class="file-name" data-full-name="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
+                    <div class="file-details">
+                        <span class="file-date">${dateText}</span>
+                    </div>
+                </div>
+            `;
+
+            // Add three-dot menu
+            const menu = createFileMenu(fileName);
+            listItem.appendChild(menu);
+
+            // Insert at the top of today's group
+            const firstItem = todayGroup.querySelector('.file-history-item');
+            if (firstItem) {
+                todayGroup.insertBefore(listItem, firstItem);
+            } else {
+                todayGroup.appendChild(listItem);
+            }
+        }
+
+        // Record file download to server
+        async function recordFileDownload(fileName) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/record`, {
+                    method: 'POST',
+                    headers: {
+                        ...authHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ fileName })
+                });
+                if (!res.ok) {
+                    console.error(`Failed to record download: ${res.status}`);
+                    return;
+                }
+                // Update DOM with the new file in history
+                addFileToHistoryDOM(fileName);
+                
+                // Extract file type and add preview card
+                const lastDotIndex = fileName.lastIndexOf('.');
+                const fileType = lastDotIndex !== -1 ? fileName.substring(lastDotIndex + 1) : '';
+                addPreviewCard(fileName, fileType);
+            } catch (e) {
+                console.error('Error recording file download:', e);
+            }
+        }
+
+        // Store local file path for previews
+        function storeLocalFilePath(fileName, filePath) {
+            try {
+                const filePaths = JSON.parse(localStorage.getItem('localFilePaths') || '{}');
+                filePaths[fileName] = filePath;
+                localStorage.setItem('localFilePaths', JSON.stringify(filePaths));
+                console.log(`Stored local path for ${fileName}:`, filePath);
+            } catch (e) {
+                console.error('Error storing file path:', e);
+            }
+        }
+
+        // Get local file path for preview
+        function getLocalFilePath(fileName) {
+            try {
+                const filePaths = JSON.parse(localStorage.getItem('localFilePaths') || '{}');
+                const path = filePaths[fileName] || null;
+                console.log(`Looking for local path for ${fileName}:`, path);
+                console.log('All stored paths:', filePaths);
+                return path;
+            } catch (e) {
+                console.error('Error getting local file path:', e);
+                return null;
+            }
+        }
+
+        async function downloadFileByName(filename) {
+            try {
+                const url = `${API_BASE_URL}/download?fileName=${encodeURIComponent(filename)}`;
+                const headers = authHeaders();
+
+                if (window.electronAPI && typeof window.electronAPI.downloadFile === 'function') {
+                    const result = await window.electronAPI.downloadFile(url, headers, filename);
+                    appendDownloadStatus(`Downloaded ${filename} → ${result.filePath}`);
+                    // Store local file path for previews (convert to file:// URL)
+                    const fileUrl = result.filePath.startsWith('file://') 
+                        ? result.filePath 
+                        : `file://${result.filePath}`;
+                    storeLocalFilePath(filename, fileUrl);
+                    // Record the download after successful download
+                    await recordFileDownload(filename);
+                    return;
+                }
+
+                const res = await fetch(url, { headers });
+                if (!res.ok) {
+                    appendDownloadStatus(`Failed to download ${filename} (${res.status})`);
+                    return;
+                }
+                const blob = await res.blob();
+                
+                // For browser, store blob in IndexedDB or use cache
+                // Store blob URL in localStorage (temporary solution)
+                // Note: blob URLs are temporary, but we'll create them when needed
+                const blobUrl = URL.createObjectURL(blob);
+                
+                // Store blob data in IndexedDB for persistent storage
+                try {
+                    await storeBlobInIndexedDB(filename, blob);
+                } catch (e) {
+                    console.error('Error storing blob:', e);
+                    // Fallback: store blob URL (temporary)
+                    storeLocalFilePath(filename, blobUrl);
+                }
+                
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                // Don't revoke blob URL immediately if stored
+                appendDownloadStatus(`Downloaded ${filename}`);
+                // Record the download after successful download
+                await recordFileDownload(filename);
+            } catch (e) {
+                console.error('download error:', e);
+                appendDownloadStatus(`Failed to download ${filename}`);
+            }
+        }
+
+        // Store blob in IndexedDB for persistent access
+        async function storeBlobInIndexedDB(fileName, blob) {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('DomuxBoxFileCache', 1);
+                
+                request.onerror = () => reject(request.error);
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('files')) {
+                        db.createObjectStore('files', { keyPath: 'fileName' });
+                    }
+                };
+                
+                request.onsuccess = (event) => {
+                    const db = event.target.result;
+                    const transaction = db.transaction(['files'], 'readwrite');
+                    const store = transaction.objectStore('files');
+                    
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        store.put({
+                            fileName: fileName,
+                            data: reader.result,
+                            type: blob.type,
+                            size: blob.size
+                        });
+                        resolve();
+                    };
+                    reader.onerror = () => reject(reader.error);
+                    reader.readAsArrayBuffer(blob);
+                };
+            });
+        }
+
+        // Get blob from IndexedDB
+        async function getBlobFromIndexedDB(fileName) {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('DomuxBoxFileCache', 1);
+                
+                request.onerror = () => reject(request.error);
+                
+                request.onsuccess = (event) => {
+                    const db = event.target.result;
+                    const transaction = db.transaction(['files'], 'readonly');
+                    const store = transaction.objectStore('files');
+                    const getRequest = store.get(fileName);
+                    
+                    getRequest.onsuccess = () => {
+                        const result = getRequest.result;
+                        if (result) {
+                            const blob = new Blob([result.data], { type: result.type });
+                            resolve(blob);
+                        } else {
+                            resolve(null);
+                        }
+                    };
+                    
+                    getRequest.onerror = () => reject(getRequest.error);
+                };
+            });
+        }
+
+        function appendDownloadStatus(text) {
+            const list = document.getElementById('downloadsList');
+            const li = document.createElement('li');
+            const now = new Date().toLocaleString();
+            li.textContent = `${text} • ${now}`;
+            list.appendChild(li);
+        }
+
+        // Create three-dot menu for files
+        function createFileMenu(fileName, isPreviewCard = false) {
+            const menuContainer = document.createElement('div');
+            menuContainer.className = 'file-menu';
+            if (isPreviewCard) {
+                menuContainer.className += ' preview-card-menu';
+            }
+
+            const menuButton = document.createElement('button');
+            menuButton.className = 'menu-button';
+            menuButton.innerHTML = '⋯';
+            menuButton.setAttribute('aria-label', 'File menu');
+            menuButton.setAttribute('type', 'button');
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'menu-dropdown';
+
+            const copyButton = document.createElement('button');
+            copyButton.className = 'menu-item';
+            copyButton.innerHTML = '<span>📋</span> Copy';
+            copyButton.onclick = (e) => {
+                e.stopPropagation();
+                copyFileName(fileName);
+                closeAllMenus();
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'menu-item delete';
+            deleteButton.innerHTML = '<span>🗑️</span> Delete';
+            deleteButton.onclick = (e) => {
+                e.stopPropagation();
+                deleteFileByName(fileName);
+                closeAllMenus();
+            };
+
+            dropdown.appendChild(copyButton);
+            dropdown.appendChild(deleteButton);
+
+            menuButton.onclick = (e) => {
+                e.stopPropagation();
+                toggleMenu(menuButton, dropdown);
+            };
+
+            menuContainer.appendChild(menuButton);
+            menuContainer.appendChild(dropdown);
+
+            return menuContainer;
+        }
+
+        // Toggle menu dropdown
+        function toggleMenu(button, dropdown) {
+            // Close all other menus first
+            closeAllMenus();
+
+            // Toggle current menu
+            button.classList.toggle('active');
+            dropdown.classList.toggle('active');
+        }
+
+        // Close all open menus
+        function closeAllMenus() {
+            document.querySelectorAll('.menu-dropdown.active').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+            document.querySelectorAll('.menu-button.active').forEach(button => {
+                button.classList.remove('active');
+            });
+        }
+
+        // Close menus when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.file-menu')) {
+                closeAllMenus();
+            }
+        });
+
+        // Copy filename to clipboard
+        async function copyFileName(fileName) {
+            try {
+                await navigator.clipboard.writeText(fileName);
+                // Optional: Show a toast notification
+                appendNotification(`Copied: ${fileName}`);
+            } catch (e) {
+                console.error('Failed to copy:', e);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = fileName;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    appendNotification(`Copied: ${fileName}`);
+                } catch (err) {
+                    console.error('Fallback copy failed:', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Delete file from server and update UI
+        async function deleteFileByName(fileName) {
+            if (!confirm(`Are you sure you want to delete "${fileName}"?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/deleteFile`, {
+                    method: 'DELETE',
+                    headers: {
+                        ...authHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ fileName })
+                });
+
+                if (!res.ok) {
+                    const error = await res.json().catch(() => ({ error: 'Failed to delete file' }));
+                    throw new Error(error.error || `HTTP ${res.status}`);
+                }
+
+                // Remove from file history DOM
+                removeFileFromHistoryDOM(fileName);
+
+                // Remove from preview cards
+                removeFileFromPreviewCards(fileName);
+
+                // Show success notification
+                appendNotification(`Deleted: ${fileName}`);
+
+                // Refresh file history and preview cards
+                await fetchAndRenderFileHistory();
+                await fetchAndRenderPreviewCards();
+            } catch (e) {
+                console.error('Error deleting file:', e);
+                appendNotification(`Failed to delete: ${fileName}`);
+                alert(`Failed to delete file: ${e.message}`);
+            }
+        }
+
+        // Remove file from file history DOM
+        function removeFileFromHistoryDOM(fileName) {
+            const fileItems = document.querySelectorAll('.file-history-item');
+            fileItems.forEach(item => {
+                const nameElement = item.querySelector('.file-name');
+                if (nameElement && nameElement.textContent === fileName) {
+                    item.remove();
+                }
+            });
+        }
+
+        // Remove file from preview cards
+        function removeFileFromPreviewCards(fileName) {
+            const cards = Array.from(previewCardsGrid.children);
+            cards.forEach(card => {
+                const nameElement = card.querySelector('.preview-card-name');
+                if (nameElement && nameElement.textContent === fileName) {
+                    card.remove();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+

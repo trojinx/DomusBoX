@@ -1,12 +1,19 @@
-const { app, BrowserWindow } = require("electron/main");
+const { app, BrowserWindow, ipcMain } = require("electron/main");
+const path = require("path");
+const fs = require("fs");
 
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
   });
 
-  win.loadFile("signup.html");
+  win.loadFile("signin.html");
 };
 
 app.whenReady().then(() => {
@@ -23,4 +30,22 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
   }
+});
+
+// Handle file downloads to the user's Downloads folder
+ipcMain.handle("download-file", async (_evt, args) => {
+  const { url, headers, filename } = args || {};
+  if (!url || !filename) {
+    throw new Error("Missing url or filename for download");
+  }
+  const res = await fetch(url, { headers: headers || {} });
+  if (!res.ok) {
+    throw new Error(`Download failed with status ${res.status}`);
+  }
+  const arrayBuffer = await res.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const downloadsPath = app.getPath("downloads");
+  const filePath = path.join(downloadsPath, filename);
+  await fs.promises.writeFile(filePath, buffer);
+  return { filePath };
 });
