@@ -13,6 +13,8 @@ import verifyJWT from "./src/middleware/verifyJWT.middleware.js";
 import recordFileDownload from "./src/controllers/recordFileDownload.controller.js";
 import showFileHistory from "./src/controllers/fileHistory.controller.js";
 import showProfileInfo from "./src/controllers/myProfile.controller.js";
+import signInWithJWT from "./src/controllers/signInWithJWT.controller.js";
+import deleteFile from "./src/controllers/deleteFile.controller.js";
 const upload = multer({ storage });
 
 dotenv.config();
@@ -30,8 +32,10 @@ app.get("/showInfo", verifyJWT, showProfileInfo);
 app.post("/fileUpload", upload.single("file"), uploadFileToServer);
 
 app.get("/download", verifyJWT, letDownloadFile);
+app.get("/quickSignIn", verifyJWT, signInWithJWT);
+app.delete("/deleteFile", verifyJWT, deleteFile);
 
-app.get("/notifications", keepAliveConnection);
+app.get("/notifications", verifyJWT, keepAliveConnection);
 
 app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`server started on port: ${process.env.PORT}`);
