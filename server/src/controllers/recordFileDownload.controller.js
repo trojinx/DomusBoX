@@ -1,6 +1,6 @@
 // for future me that is wondering why tf is this file: records that --> client has downloaded file, and i can delete this file from server
 // client itself sends req that it has downloaded the file,
-
+import eventBus from "../config/eventBus.config.js";
 import File from "../schema/fileTransaction.schema.js";
 async function recordFileDownload(req, res) {
   try {
@@ -20,6 +20,7 @@ async function recordFileDownload(req, res) {
       });
 
       await newFile.save();
+      eventBus.emit("deleteFile", fileName); // triggering this event, so that i can delete the file if this event is listened
       return res.status(200).send("File download recorded successfully");
     }
   } catch (e) {
