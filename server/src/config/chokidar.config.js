@@ -1,4 +1,3 @@
-// apparently you can't emit an event from 1 module and hear it in another module, even though both events are in same node process, LOL
 import eventBus from "./eventBus.config.js";
 import path from "path";
 import { fileURLToPath } from "url";

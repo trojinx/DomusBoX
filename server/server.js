@@ -7,14 +7,17 @@ import uploadFileToServer from "./src/controllers/uploadFile.controller.js";
 import storage from "./src/config/multer.config.js";
 import keepAliveConnection from "./src/controllers/clientConnection.controller.js";
 import connectDB from "./src/config/db.config.js";
-import signUp from "./src/controllers/signup.controller.js";
-import signIn from "./src/controllers/signIn.controller.js";
+import signUp from "./src/controllers/signupDeskApp.controller.js";
+// import signIn from "./src/controllers/signInDeskApp.controller.js";
 import verifyJWT from "./src/middleware/verifyJWT.middleware.js";
 import recordFileDownload from "./src/controllers/recordFileDownload.controller.js";
 import showFileHistory from "./src/controllers/fileHistory.controller.js";
 import showProfileInfo from "./src/controllers/myProfile.controller.js";
-import signInWithJWT from "./src/controllers/signInWithJWT.controller.js";
+import signInWithJWT from "./src/controllers/signInWithJWTDeskApp.controller.js";
 import deleteFile from "./src/controllers/deleteFile.controller.js";
+import signInWeb from "./src/controllers/signInWeb.controller.js";
+import signInDesk from "./src/controllers/signInDeskApp.controller.js";
+import respond200 from "./src/controllers/respond200.controller.js";
 const upload = multer({ storage });
 
 dotenv.config();
@@ -26,14 +29,17 @@ app.get("/testing", (req, res) => {
 
 app.post("/record", verifyJWT, recordFileDownload);
 app.post("/signUp", signUp);
-app.post("/signIn", signIn);
+app.post("/signIn", signInDesk);
 app.get("/fileHistory", verifyJWT, showFileHistory);
 app.get("/showInfo", verifyJWT, showProfileInfo);
-app.post("/fileUpload", upload.single("file"), uploadFileToServer);
+// app.post("/fileUpload", upload.single("file"), uploadFileToServer);
+
+//route for user to upload file to server:
+app.post("/fileUpload", signInWeb, upload.single("file"), respond200);
 
 app.get("/download", verifyJWT, letDownloadFile);
 app.get("/quickSignIn", verifyJWT, signInWithJWT);
-app.delete("/deleteFile", verifyJWT, deleteFile);
+// app.delete("/deleteFile", verifyJWT, deleteFile);
 
 app.get("/notifications", verifyJWT, keepAliveConnection);
 

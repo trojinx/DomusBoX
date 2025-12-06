@@ -10,7 +10,7 @@ const uploadDir = path.join(__dirname, "../../uploads");
 const storage = multer.diskStorage({
   destination: uploadDir,
   filename: (req, file, cb) => {
-    const receiverUsername = req.body.username || "anonymous";
+    const receiverUsername = req.headers.username;
     const newFileName = `${receiverUsername}_${file.originalname}`;
     cb(null, newFileName);
   },

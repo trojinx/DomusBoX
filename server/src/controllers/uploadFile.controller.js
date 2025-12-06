@@ -7,6 +7,7 @@
 // TODO: think of some standart approach, this is a temp workaround, or maybe not!
 
 import fs from "node:fs/promises";
+import eventBus from "../config/eventBus.config.js";
 import { fileURLToPath } from "node:url";
 import User from "../schema/user.schema.js";
 import bcrypt from "bcrypt";
@@ -39,6 +40,7 @@ async function verifyUserCredentials(req, res) {
           .status(401)
           .send("Password is not correct, please try again");
       } else {
+        eventBus.emit("fileUpload");
         return res.status(200).send("File uploaded successfully");
       }
     }

@@ -2,7 +2,7 @@ import User from "../schema/user.schema.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-async function signIn(req, res) {
+async function signInDesk(req, res) {
   try {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email: email });
@@ -35,4 +35,4 @@ async function signIn(req, res) {
     return res.status(500).send("Internal server error");
   }
 }
-export default signIn;
+export default signInDesk;

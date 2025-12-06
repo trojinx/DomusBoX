@@ -21,6 +21,7 @@ async function keepAliveConnection(req, res) {
     });
   } catch (e) {
     console.log(`error in clientConnection.controller.js: ${e}`);
+
     return res.status(500).send("Internal server errror");
   }
 }
