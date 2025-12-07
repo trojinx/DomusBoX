@@ -13,7 +13,7 @@ const uploadDir = path.join(__dirname, "../../uploads");
 const watcher = chokidar.watch(`${uploadDir}`, { persistent: true });
 
 watcher.on("add", (newFilePath) => {
-  console.log(newFilePath);
+  //   console.log(newFilePath);
 
   const fileNameOnly = newFilePath.split("uploads")[1];
   // console.log(fileNameOnly);
