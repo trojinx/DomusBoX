@@ -1,4 +1,7 @@
 import eventBus from "../config/eventBus.config.js";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
 async function keepAliveConnection(req, res) {
   try {
@@ -12,7 +15,24 @@ async function keepAliveConnection(req, res) {
     res.setHeader("Cache-Control", "no-cache");
     res.flushHeaders();
     res.write("data: Connected to server, ready to receive notifications\n\n");
-    eventBus.on("fileUpload", (newFilePath) => {
+
+    // give url of files for download, as client was disconnected and probably has missed some files
+    const currentFilePath = fileURLToPath(import.meta.url);
+    const fileUploadPath = path.join(currentFilePath, "../../../uploads");
+    console.log(fileUploadPath);
+    const allFiles = await fs.readdir(fileUploadPath);
+    const unsentFiles = [];
+    for (let i in allFiles) {
+      const file = allFiles[i];
+      if (file.startsWith(`${username}_`)) {
+        unsentFiles.push(file);
+      }
+    }
+    for (const file of unsentFiles) {
+      res.write(`data: missed file: ${file}\n\n`);
+    }
+
+    const newFilePathsArray = eventBus.on("fileUpload", (newFilePath) => {
       const fileName = newFilePath.split("/")[1];
       const ownerUsername = fileName.split("_")[0];
       if (ownerUsername == username) {
