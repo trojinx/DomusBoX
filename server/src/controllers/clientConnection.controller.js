@@ -16,10 +16,10 @@ async function keepAliveConnection(req, res) {
     res.flushHeaders();
     res.write("data: Connected to server, ready to receive notifications\n\n");
 
-    // give url of files for download, as client was disconnected and probably has missed some files
+    // when client reconnects...
     const currentFilePath = fileURLToPath(import.meta.url);
     const fileUploadPath = path.join(currentFilePath, "../../../uploads");
-    console.log(fileUploadPath);
+    // console.log(fileUploadPath);
     const allFiles = await fs.readdir(fileUploadPath);
     const unsentFiles = [];
     for (let i in allFiles) {
@@ -29,7 +29,7 @@ async function keepAliveConnection(req, res) {
       }
     }
     for (const file of unsentFiles) {
-      res.write(`data: missed file: ${file}\n\n`);
+      await res.write(`data: missed file: ${file}\n\n`);
     }
 
     const newFilePathsArray = eventBus.on("fileUpload", (newFilePath) => {
