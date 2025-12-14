@@ -246,7 +246,7 @@
             font-size: 12px;
             color: #94a3b8;
             display: flex;
-            justify-content: flex-end;
+            justify-content: flex-start;
             align-items: center;
         }
 
@@ -808,6 +808,19 @@
                 opacity: 1;
             }
         }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                max-height: 500px;
+            }
+        }
 
         .image-modal-close {
             position: absolute;
@@ -837,57 +850,6 @@
             transform: rotate(90deg) scale(0.95);
         }
 
-        /* Downloads Section */
-        #downloadsSection {
-            position: fixed;
-            bottom: 0;
-            left: 280px; /* Start after left sidebar */
-            right: 320px; /* End before right sidebar */
-            padding: 16px 32px;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid #334155;
-            z-index: 1000;
-            max-height: 200px;
-            overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-
-        #downloadsSection::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-
-        @media (max-width: 768px) {
-            #downloadsSection {
-                left: 0;
-                right: 0;
-            }
-        }
-
-        #downloadsList {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #downloadsList li {
-            padding: 12px 16px;
-            margin-top: 8px;
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: var(--border-radius-card);
-            border-left: 3px solid #10b981;
-            font-size: 14px;
-            color: #f1f5f9;
-            transition: all 0.3s ease;
-        }
-
-        #downloadsList li:hover {
-            background: #334155;
-            border-color: #475569;
-        }
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -948,6 +910,109 @@
             background: rgba(148, 163, 184, 0.7);
             background-clip: padding-box;
         }
+
+        /* Categories Section */
+        .categories-section {
+            margin-top: 32px;
+        }
+        
+        /* View Switching Class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Category View Styles */
+        .category-view-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .back-button {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            color: #f1f5f9;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 20px;
+        }
+
+        .back-button:hover {
+            background: #334155;
+            transform: translateX(-2px);
+        }
+
+        .category-view-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .category-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: var(--border-radius-card);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card:hover {
+            background: #334155;
+            border-color: #475569;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Category Icons - Google Files Style */
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .category-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Cleaned up old styles... */
+        .category-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .category-count {
+            font-size: 12px;
+            color: #94a3b8;
+            font-family: 'JetBrains Mono', monospace;
+        }
     </style>
 </head>
 <body>
@@ -957,10 +1022,14 @@
             <!-- Username Logo Section -->
             <div class="username-section">
                 <div class="username-avatar" id="usernameAvatar">U</div>
-                <div class="username-info">
+                <div class="username-info" style="flex: 1;">
                     <h3 id="usernameDisplay">Loading...</h3>
                     <p>DomusBox User</p>
                 </div>
+                <!-- Settings Toggle Button -->
+                <button id="settingsToggleBtn" class="menu-button" style="width: 36px; height: 36px; margin-left: 8px;" aria-label="Settings">
+                    ⚙️
+                </button>
             </div>
 
             <!-- File History Section -->
@@ -970,10 +1039,6 @@
                     <!-- File history items will be populated by JavaScript -->
                 </ul>
             </div>
-
-            <!-- Logout Button -->
-            <button class="logout-button" id="logoutButton">
-                <span>Log Out</span>
             </button>
 
             <!-- Connection Status -->
@@ -990,29 +1055,121 @@
 
         <!-- Main Content Area -->
         <div class="main-content">
-            <div class="dashboard-header">
-                <h1 class="dashboard-title">Dashboard</h1>
-                <p class="dashboard-subtitle">Welcome to your DomusBox control center</p>
+            <!-- DASHBOARD VIEW -->
+            <div id="dashboardView">
+                <div class="dashboard-header">
+                    <h1 class="dashboard-title">Dashboard</h1>
+                    <p class="dashboard-subtitle">Welcome to your DomusBox control center</p>
+                </div>
+
+                <!-- File Preview Cards -->
+                <div class="preview-section">
+                    <div class="preview-section-title">Recent Files</div>
+                    <div class="preview-cards-grid" id="previewCardsGrid">
+                        <!-- Preview cards will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Categories Section -->
+                <div class="categories-section">
+                    <div class="preview-section-title">Categories</div>
+                    <div class="categories-grid" id="categoriesGrid">
+                        <!-- Categories will be populated by JavaScript -->
+                    </div>
+                </div>
             </div>
 
-            <!-- File Preview Cards -->
-            <div class="preview-section">
-                <div class="preview-section-title">Recent Files</div>
-                <div class="preview-cards-grid" id="previewCardsGrid">
-                    <!-- Preview cards will be populated by JavaScript -->
+            <!-- CATEGORY DETAIL VIEW (Hidden by default) -->
+            <div id="categoryView" class="hidden">
+                <div class="category-view-header">
+                    <div class="back-button" onclick="switchView('dashboardView')">←</div>
+                    <h1 class="category-view-title" id="categoryViewTitle">Category Name</h1>
                 </div>
+                <!-- Reusing preview-cards-grid for the category list -->
+                <div class="preview-cards-grid" id="categoryContentGrid"></div>
             </div>
         </div>
 
         <!-- Downloads status -->
         <div id="downloadsSection">
-            <ul id="downloadsList"></ul>
+
         </div>
 
         <!-- Image Modal -->
         <div id="imageModal" class="image-modal">
             <span class="image-modal-close" id="imageModalClose">&times;</span>
             <img id="imageModalContent" class="image-modal-content" src="" alt="Preview">
+        </div>
+        
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="image-modal">
+            <div class="settings-modal-content" style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 32px; width: 500px; max-width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; animation: scaleIn 0.2s ease;">
+                <span class="image-modal-close" id="settingsModalClose" style="top: 16px; right: 16px; width: 32px; height: 32px; font-size: 24px; background: transparent; border: none;">&times;</span>
+                
+                <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 8px; color: #f1f5f9;">Settings</h2>
+                <div style="font-size: 14px; color: #94a3b8; margin-bottom: 32px;">Manage your application preferences</div>
+                
+                <!-- Profile Setting -->
+                <div class="setting-item" style="margin-bottom: 24px;">
+                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div>
+                            <div class="setting-label" style="font-size: 14px; font-weight: 500; color: #f1f5f9; margin-bottom: 4px;">My Profile</div>
+                            <div class="setting-description" style="font-size: 12px; color: #64748b;">View your account details</div>
+                        </div>
+                        <button id="viewProfileBtn" class="action-button" style="padding: 8px 12px; background: #334155; border: 1px solid #475569; border-radius: 6px; color: #f1f5f9; cursor: pointer; font-size: 12px; transition: all 0.2s; white-space: nowrap;">
+                            View Profile
+                        </button>
+                    </div>
+                    
+                    <!-- Expanded Profile Info (Hidden by default) -->
+                    <div id="profileInfoSection" style="display: none; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-top: 12px; animation: slideDown 0.2s ease;">
+                        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                            <div id="settingsAvatar" style="width: 60px; height: 60px; background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; color: white; margin-right: 16px;">U</div>
+                            <div>
+                                <div id="settingsUsername" style="font-size: 18px; font-weight: 600; color: #f1f5f9; margin-bottom: 4px;">Loading...</div>
+                                <div id="settingsEmail" style="font-size: 14px; color: #94a3b8;">loading...</div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div style="background: #1e293b; padding: 10px; border-radius: 6px;">
+                                <div style="font-size: 11px; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">User ID</div>
+                                <div id="settingsUserId" style="font-size: 13px; color: #f1f5f9; font-family: 'JetBrains Mono', monospace;">-</div>
+                            </div>
+                            <div style="background: #1e293b; padding: 10px; border-radius: 6px;">
+                                <div style="font-size: 11px; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Joined</div>
+                                <div id="settingsJoinedDate" style="font-size: 13px; color: #f1f5f9;">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download Location Setting -->
+                <div class="setting-item" style="margin-bottom: 32px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div>
+                            <div class="setting-label" style="font-size: 14px; font-weight: 500; color: #f1f5f9; margin-bottom: 4px;">Download Location</div>
+                            <div class="setting-description" style="font-size: 12px; color: #64748b;">Choose where files are saved automatically</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                        <div class="setting-value" id="downloadLocationDisplay" style="font-size: 12px; color: #f1f5f9; word-break: break-all; font-family: 'JetBrains Mono', monospace;">Default (Downloads)</div>
+                        <button id="changeLocationBtn" class="action-button" style="padding: 8px 12px; background: #334155; border: 1px solid #475569; border-radius: 6px; color: #f1f5f9; cursor: pointer; font-size: 12px; transition: all 0.2s; white-space: nowrap;">
+                            Change Folder
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div style="height: 1px; background: #334155; margin-bottom: 32px;"></div>
+
+                <!-- Logout Button -->
+                <div style="display: flex; justify-content: flex-end;">
+                     <button class="logout-button" id="logoutButton" style="width: auto; margin-bottom: 0; background: rgba(239, 68, 68, 0.1); border-color: #ef4444; color: #ef4444;">
+                        <span>Log Out</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Right Sidebar: Notifications -->
@@ -1039,7 +1196,15 @@
         const imageModal = document.getElementById('imageModal');
         const imageModalContent = document.getElementById('imageModalContent');
         const imageModalClose = document.getElementById('imageModalClose');
+
         const previewCardsGrid = document.getElementById('previewCardsGrid');
+        const categoriesGrid = document.getElementById('categoriesGrid');
+        
+        // Views
+        const dashboardView = document.getElementById('dashboardView');
+        const categoryView = document.getElementById('categoryView');
+        const categoryViewTitle = document.getElementById('categoryViewTitle');
+        const categoryContentGrid = document.getElementById('categoryContentGrid');
         
         // Initialize Dashboard
         function initializeDashboard() {
@@ -1051,6 +1216,53 @@
             
             // Setup logout button
             logoutButton.addEventListener('click', handleLogout);
+            
+            // Setup settings modal
+            const settingsModal = document.getElementById('settingsModal');
+            const settingsBtn = document.getElementById('settingsToggleBtn');
+            const settingsClose = document.getElementById('settingsModalClose');
+            const viewProfileBtn = document.getElementById('viewProfileBtn');
+            const profileInfoSection = document.getElementById('profileInfoSection');
+            
+            settingsBtn.addEventListener('click', () => {
+                settingsModal.classList.add('active');
+                // Reset profile view when opening
+                profileInfoSection.style.display = 'none';
+                viewProfileBtn.textContent = 'View Profile';
+            });
+            
+            viewProfileBtn.addEventListener('click', () => {
+                if (profileInfoSection.style.display === 'none') {
+                    profileInfoSection.style.display = 'block';
+                    viewProfileBtn.textContent = 'Hide Profile';
+                    fetchAndShowFullProfile();
+                } else {
+                    profileInfoSection.style.display = 'none';
+                    viewProfileBtn.textContent = 'View Profile';
+                }
+            });
+            
+            settingsClose.addEventListener('click', () => {
+                settingsModal.classList.remove('active');
+            });
+            
+            // Close settings when clicking outside (on backdrop)
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) {
+                    settingsModal.classList.remove('active');
+                }
+            });
+            
+            // Close on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    settingsModal.classList.remove('active');
+                    imageModal.classList.remove('active'); // Also close image modal
+                }
+            });
+
+            // Setup download location
+            setupDownloadLocation();
             
             // Setup image modal
             imageModalClose.addEventListener('click', closeImageModal);
@@ -1108,6 +1320,52 @@
             }
         }
 
+        // Fetch and render full profile for settings
+        async function fetchAndShowFullProfile() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/showInfo`, {
+                    method: 'GET',
+                    headers: authHeaders()
+                });
+                if (!res.ok) throw new Error('Failed to fetch profile');
+                const data = await res.json();
+                const user = data?.existingUser || {};
+                
+                document.getElementById('settingsUsername').textContent = user.username || 'User';
+                document.getElementById('settingsEmail').textContent = user.email || 'No email';
+                document.getElementById('settingsAvatar').textContent = (user.username || 'U').charAt(0).toUpperCase();
+                document.getElementById('settingsUserId').textContent = user._id || '-';
+                
+                if (user.createdAt) {
+                    const date = new Date(user.createdAt);
+                    document.getElementById('settingsJoinedDate').textContent = date.toLocaleDateString();
+                } else {
+                    document.getElementById('settingsJoinedDate').textContent = '-';
+                }
+            } catch (e) {
+                console.error('Profile details error:', e);
+                document.getElementById('settingsUsername').textContent = 'Error loading';
+            }
+        }
+
+        // Helper to convert file path to URL (Cross-platform)
+        function toFileUrl(filePath) {
+            if (!filePath) return '';
+            if (filePath.startsWith('file://')) return filePath;
+            
+            // Handle Windows paths (replace backslashes)
+            let pathName = filePath.replace(/\\/g, '/');
+            
+            // Ensure safe encoding
+            // Note: In a full app we might use encodeURIComponent but we need to be careful with path separators
+            // For simple usage:
+            if (!pathName.startsWith('/')) {
+                pathName = '/' + pathName;
+            }
+            
+            return 'file://' + pathName;
+        }
+
         // Get file type text for icon
         function getFileIcon(fileType) {
             if (!fileType) return 'FILE';
@@ -1119,6 +1377,8 @@
             const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
             return imageTypes.includes(fileType?.toLowerCase());
         }
+
+
 
         // Create preview card element
         function createPreviewCard(file) {
@@ -1165,37 +1425,120 @@
             const cardName = document.createElement('div');
             cardName.className = 'preview-card-name';
             cardName.textContent = fileName;
-            cardName.setAttribute('data-full-name', fileName);
+            const info = document.createElement('div');
+            info.className = 'preview-card-info';
             
-            const cardDate = document.createElement('div');
-            cardDate.className = 'preview-card-date';
-            cardDate.textContent = dateText;
+            info.innerHTML = `
+                <div class="preview-card-name" data-full-name="${escapeHtml(fileName)}" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
+                <div class="preview-card-date">${dateText}</div>
+            `;
             
-            cardInfo.appendChild(cardName);
-            cardInfo.appendChild(cardDate);
+            card.appendChild(thumbnail);
+            card.appendChild(info);
             
-            // Add three-dot menu (for preview cards, positioned absolutely)
+            // Preview card menu
             const menu = createFileMenu(fileName, true);
             card.appendChild(menu);
             
-            card.appendChild(thumbnail);
-            card.appendChild(cardInfo);
-            
-            // Add click handler for all cards (images open in modal, others could open file)
+            // Open modal on click
             card.addEventListener('click', (e) => {
-                // Don't trigger card action if clicking on menu
-                if (e.target.closest('.file-menu') || e.target.closest('.menu-dropdown')) {
-                    return;
-                }
-                if (isImage) {
-                    showImageModal(fileName);
-                } else {
-                    // For non-images, could trigger download or open file
-                    console.log('Clicked on non-image file:', fileName);
+                if (!e.target.closest('.file-menu')) {
+                    if (isImage) {
+                        showImageModal(fileName);
+                    } else {
+                        // For non-images, maybe download? For now do nothing or show info
+                        console.log('Clicked non-image file:', fileName);
+                    }
                 }
             });
             
             return card;
+        }
+
+        // SVG Icons helper
+        const Icons = {
+            audio: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#F0F9FF"/><path d="M9 16.5C9 17.3284 8.32843 18 7.5 18C6.67157 18 6 17.3284 6 16.5C6 15.6716 6.67157 15 7.5 15C8.32843 15 9 15.6716 9 16.5ZM9 16.5V9L18 7V14.5C18 15.3284 17.3284 16 16.5 16C15.6716 16 15 15.3284 15 14.5C15 13.6716 15.6716 13 16.5 13C17.3284 13 18 13.6716 18 14.5Z" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+            images: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#FEF2F2"/><path d="M15 10C15.5523 10 16 9.55228 16 9C16 8.44772 15.5523 8 15 8C14.4477 8 14 8.44772 14 9C14 9.55228 14.4477 10 15 10Z" fill="#ef4444"/><path d="M5 16L9 12L12 15L14 13L19 18H5.5" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+            videos: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#FFF7ED"/><path d="M10 8L16 12L10 16V8Z" fill="#f97316" stroke="#f97316" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+            documents: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#F5F3FF"/><path d="M9 17H15M9 13H15M9 9H13" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 5H16C17.1 5 18 5.9 18 7V19H6V7C6 5.9 6.9 5 8 5Z" stroke="#8b5cf6" stroke-width="1.5"/></svg>`,
+            others: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="12" fill="#F1F5F9"/><path d="M19 11L12 17L5 11M5 7L12 13L19 7" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+        };
+
+        // Switch Views helper
+        window.switchView = function(viewId) {
+            dashboardView.classList.add('hidden');
+            categoryView.classList.add('hidden');
+            
+            document.getElementById(viewId).classList.remove('hidden');
+        };
+
+        // Render detailed category view
+        function renderCategoryView(categoryName, categoryFiles) {
+            categoryViewTitle.textContent = categoryName;
+            categoryContentGrid.innerHTML = '';
+            
+            if (categoryFiles.length === 0) {
+                categoryContentGrid.innerHTML = '<div style="color: #94a3b8; grid-column: 1/-1; text-align: center; padding: 40px;">No files in this category</div>';
+                return;
+            }
+
+            categoryFiles.forEach(file => {
+                const card = createPreviewCard(file);
+                categoryContentGrid.appendChild(card);
+            });
+            
+            switchView('categoryView');
+        }
+
+        // Calculate and render categories
+        function renderCategories(files) {
+            const categories = {
+                'Audio': { count: 0, icon: Icons.audio, types: ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac'], files: [] },
+                'Images': { count: 0, icon: Icons.images, types: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'], files: [] },
+                'Videos': { count: 0, icon: Icons.videos, types: ['mp4', 'webm', 'avi', 'mov', 'mkv', 'flv', 'wmv'], files: [] },
+                'Documents': { count: 0, icon: Icons.documents, types: ['pdf', 'doc', 'docx', 'txt', 'md', 'xls', 'xlsx', 'ppt', 'pptx', 'csv'], files: [] },
+                'Others': { count: 0, icon: Icons.others, types: [], files: [] }
+            };
+
+            files.forEach(file => {
+                const ext = file.fileType ? file.fileType.toLowerCase() : '';
+                let matched = false;
+                
+                for (const [name, cat] of Object.entries(categories)) {
+                    if (name !== 'Others' && cat.types.includes(ext)) {
+                        cat.count++;
+                        cat.files.push(file);
+                        matched = true;
+                        break;
+                    }
+                }
+                
+                if (!matched) {
+                    categories['Others'].count++;
+                    categories['Others'].files.push(file);
+                }
+            });
+
+            categoriesGrid.innerHTML = '';
+
+            Object.entries(categories).forEach(([name, data]) => {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.innerHTML = `
+                    <div class="category-icon">${data.icon}</div>
+                    <div class="category-info">
+                        <div class="category-name">${name}</div>
+                        <div class="category-count">${data.count} file${data.count !== 1 ? 's' : ''}</div>
+                    </div>
+                `;
+                
+                // Add click event to open details
+                card.addEventListener('click', () => {
+                   renderCategoryView(name, data.files); 
+                });
+                
+                categoriesGrid.appendChild(card);
+            });
         }
 
         // Load and render preview cards from file history
@@ -1304,6 +1647,9 @@
                 const data = await res.json();
                 const files = Array.isArray(data?.foundFiles) ? data.foundFiles : [];
 
+                // Render categories with the fetched files
+                renderCategories(files);
+
                 files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
                 const groupedFiles = groupFilesByDate(files);
@@ -1328,7 +1674,7 @@
                     listItem.innerHTML = `
                             <div class="file-icon">${fileIcon}</div>
                             <div class="file-info">
-                                <div class="file-name" data-full-name="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
+                                <div class="file-name" data-full-name="${escapeHtml(fileName)}" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
                         <div class="file-details">
                             <span class="file-date">${dateText}</span>
                                 </div>
@@ -1338,7 +1684,10 @@
                     // Add three-dot menu
                     const menu = createFileMenu(fileName);
                     listItem.appendChild(menu);
+
                         groupDiv.appendChild(listItem);
+                        
+
                     });
                     
                     fileHistoryList.appendChild(groupDiv);
@@ -1453,6 +1802,12 @@
         }
 
         function appendNotification(message) {
+            // Suppress "ready to receive" and "missed file" notifications but trigger download
+            if (message && /(?:new file ready to receive|missed file):/i.test(message)) {
+                attemptAutoDownloadFromMessage(message);
+                return;
+            }
+
             const li = document.createElement('li');
             li.className = 'notification-item unread';
             const now = new Date();
@@ -1474,7 +1829,7 @@
             notificationsList.prepend(li);
 
             // Attempt auto-download when notification contains a file name
-            attemptAutoDownloadFromMessage(message);
+
         }
 
         // Basic HTML escape to avoid injecting HTML via SSE
@@ -1659,8 +2014,8 @@
         // Try to detect filename from notification and download it
         function attemptAutoDownloadFromMessage(message) {
             if (!message) return;
-            // Expected format from server: "new file ready to receive: <filename>"
-            const match = message.match(/new file ready to receive:\s*(.+)$/i);
+            // Expected format from server: "new file ready to receive: <filename>" or "missed file: <filename>"
+            const match = message.match(/(?:new file ready to receive|missed file):\s*(.+)$/i);
             const candidate = match ? match[1].trim() : null;
             const filename = candidate || null;
             if (!filename) return;
@@ -1713,7 +2068,7 @@
             listItem.innerHTML = `
                 <div class="file-icon">${fileIcon}</div>
                 <div class="file-info">
-                    <div class="file-name" data-full-name="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
+                    <div class="file-name" data-full-name="${escapeHtml(fileName)}" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
                     <div class="file-details">
                         <span class="file-date">${dateText}</span>
                     </div>
@@ -1731,6 +2086,7 @@
             } else {
                 todayGroup.appendChild(listItem);
             }
+
         }
 
         // Record file download to server
@@ -1792,13 +2148,16 @@
                 const headers = authHeaders();
 
                 if (window.electronAPI && typeof window.electronAPI.downloadFile === 'function') {
-                    const result = await window.electronAPI.downloadFile(url, headers, filename);
-                    appendDownloadStatus(`Downloaded ${filename} → ${result.filePath}`);
-                    // Store local file path for previews (convert to file:// URL)
-                    const fileUrl = result.filePath.startsWith('file://') 
-                        ? result.filePath 
-                        : `file://${result.filePath}`;
+                    // Get custom download path from localStorage
+                    const targetDirectory = localStorage.getItem('customDownloadPath');
+                    
+                    const result = await window.electronAPI.downloadFile(url, headers, filename, targetDirectory);
+                    appendNotification(`Downloaded ${filename} → ${result.filePath}`);
+                    
+                    // Store local file path for previews using cross-platform helper
+                    const fileUrl = toFileUrl(result.filePath);
                     storeLocalFilePath(filename, fileUrl);
+                    
                     // Record the download after successful download
                     await recordFileDownload(filename);
                     return;
@@ -1806,7 +2165,7 @@
 
                 const res = await fetch(url, { headers });
                 if (!res.ok) {
-                    appendDownloadStatus(`Failed to download ${filename} (${res.status})`);
+                    appendNotification(`Failed to download ${filename} (${res.status})`);
                     return;
                 }
                 const blob = await res.blob();
@@ -1832,12 +2191,12 @@
                 a.click();
                 a.remove();
                 // Don't revoke blob URL immediately if stored
-                appendDownloadStatus(`Downloaded ${filename}`);
+                appendNotification(`Downloaded ${filename}`);
                 // Record the download after successful download
                 await recordFileDownload(filename);
             } catch (e) {
                 console.error('download error:', e);
-                appendDownloadStatus(`Failed to download ${filename}`);
+                appendNotification(`Failed to download ${filename}`);
             }
         }
 
@@ -1904,13 +2263,7 @@
             });
         }
 
-        function appendDownloadStatus(text) {
-            const list = document.getElementById('downloadsList');
-            const li = document.createElement('li');
-            const now = new Date().toLocaleString();
-            li.textContent = `${text} • ${now}`;
-            list.appendChild(li);
-        }
+
 
         // Create three-dot menu for files
         function createFileMenu(fileName, isPreviewCard = false) {
@@ -2071,6 +2424,35 @@
                 const nameElement = card.querySelector('.preview-card-name');
                 if (nameElement && nameElement.textContent === fileName) {
                     card.remove();
+                }
+            });
+        }
+        
+        // Setup download location settings
+        function setupDownloadLocation() {
+            const btn = document.getElementById('changeLocationBtn');
+            const display = document.getElementById('downloadLocationDisplay');
+            
+            // Load saved location
+            const savedPath = localStorage.getItem('customDownloadPath');
+            if (savedPath) {
+                display.textContent = savedPath;
+            }
+            
+            btn.addEventListener('click', async () => {
+                try {
+                    if (window.electronAPI && window.electronAPI.selectDirectory) {
+                        const path = await window.electronAPI.selectDirectory();
+                        if (path) {
+                            localStorage.setItem('customDownloadPath', path);
+                            display.textContent = path;
+                            appendNotification('Download location updated');
+                        }
+                    } else {
+                        console.warn('Directory selection not supported in browser mode');
+                    }
+                } catch (e) {
+                    console.error('Error selecting directory:', e);
                 }
             });
         }
