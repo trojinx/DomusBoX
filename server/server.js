@@ -20,6 +20,7 @@ import signInWithJWT from "./src/controllers/signInWithJWTDeskApp.controller.js"
 import signInWeb from "./src/controllers/signInWeb.controller.js";
 import signInDesk from "./src/controllers/signInDeskApp.controller.js";
 import respond200 from "./src/controllers/respond200.controller.js";
+import appImageDownload from "./src/controllers/appImageDownload.controller.js";
 
 const upload = multer({ storage });
 
@@ -46,6 +47,7 @@ app.get("/quickSignIn", verifyJWT, signInWithJWT);
 // app.delete("/deleteFile", verifyJWT, deleteFile);
 
 app.get("/notifications", verifyJWT, keepAliveConnection);
+app.get("/appImage", appImageDownload);
 
 app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`server started on port: ${process.env.PORT}`);
