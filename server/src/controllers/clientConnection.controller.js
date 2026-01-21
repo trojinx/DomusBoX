@@ -1,3 +1,4 @@
+import { time } from "console";
 import eventBus from "../config/eventBus.config.js";
 import fs from "fs/promises";
 import path from "path";
@@ -13,7 +14,9 @@ async function keepAliveConnection(req, res) {
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Connection", "keep-alive");
     res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("X-Accel-Buffering", "no");
     res.flushHeaders();
+
     // res.write("data: Connected to server, ready to receive notifications\n\n");
 
     // when client reconnects...
@@ -31,7 +34,9 @@ async function keepAliveConnection(req, res) {
     for (const file of unsentFiles) {
       await res.write(`data: missed file: ${file}\n\n`);
     }
-
+    const hearBeatInterval = setInterval(() => {
+      res.write(":\\n\\n");
+    }, 1500);
     const newFilePathsArray = eventBus.on("fileUpload", (newFilePath) => {
       const fileName = newFilePath.split("/")[1];
       const ownerUsername = fileName.split("_")[0];
